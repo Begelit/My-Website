@@ -1,0 +1,11 @@
+{% extends '/home/koza/django-apps/testsite/templates/testsite/base.html' %}
+{% block title %}
+    <title>SWB - Home</title>
+{% endblock %}
+
+{% block loginbutton %}
+<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <a href="/signin_form" class="btn btn-outline-primary btn-lg" tabindex="-1">Sign in</a>
+    <a href="/login_form" class="btn btn-outline-primary btn-lg" tabindex="-1">Login</a>
+</div>
+{% endblock %}

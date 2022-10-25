@@ -1,0 +1,103 @@
+{% extends '/home/koza/django-apps/testsite/templates/testsite/base.html' %}
+{% block title %}
+<title>SWB - rowcol testing</title>
+{% endblock %}
+
+{% block content %}
+<div class="container border p-5">
+    <div class = "row">
+
+        <div class = "col-6 p-0">
+            <div class="p-3 border"><strong>row1col1 col-6</strong></div>
+        </div>
+        <div class = "col-4 p-0">
+            <div class="p-3 border">row1col2 col-4</div>
+        </div>
+        <div class = "col-2 p-0">
+            <div class="p-3 border">row1col3 col-2</div>
+        </div>
+    </div>
+    <div class = "row">
+        <div class = "col-2 p-0">
+            <div class="p-3 border">row2col1 col-2</div>
+        </div>
+        <div class = "col-7 p-0">
+            <div class="p-3 border"><strong>row2col2 col-7</strong></div>
+        </div>
+        <div class = "col-3 p-0">
+            <div class="p-3 border">row2col3 col-3</div>
+        </div>
+    </div>
+    <div class = "row">
+        <div class = "col p-0">
+            <div class="p-3 border">row3col1</div>
+        </div>
+        <div class = "col p-0">
+            <div class="p-3 border">row3col2</div>
+        </div>
+        <div class = "col p-0">
+            <div class="p-3 border"><strong>row3col3</strong></div>
+        </div>
+    </div>
+    <div class = "row">
+
+        <div class = "col p-0">
+            <div class="p-3 border"><strong>row4col1</strong></div>
+        </div>
+        <div class = "col p-0 col-lg-2">
+            <div class="p-3 border">row4col2 col-lg-2</div>
+        </div>
+        <div class = "col p-0 col-lg-3">
+            <div class="p-3 border">row4col3 col-lg-3</div>
+        </div>
+    </div>
+    <div class = "row">
+        <div class = "col-sm-4 p-0">
+            <div class="p-3 border"><strong>row5col1 col-sm-4</strong></div>
+        </div>
+        <div class = "col-sm-2 p-0">
+            <div class="p-3 border">row5col2 col-sm-2</div>
+        </div>
+        <div class = "col p-0">
+            <div class="p-3 border">row5col3</div>
+        </div>
+    </div>
+    <div class = "row">
+        <div class = "col-md-6 p-0 bg-light">
+            <div class="p-3 border"><strong>row6col1 col-md-6</strong></div>
+        </div>
+        <div class = "col-md-4 p-0 bg-light">
+            <div class="p-3 border">row6col2 col-md-4</div>
+        </div>
+        <div class = "col p-0 bg-light">
+            <div class="p-3 border">row6col3</div>
+        </div>
+    </div>
+</div>
+<div class="container border p-5">
+<div class = "row p-3">
+    
+    <div class = "col">
+        <div class="p-3 border"><strong>row1col1</strong></div>
+    </div>
+    <div class = "col">
+        <div class="p-3 border">row1col2</div>
+    </div>
+    <div class = "col">
+        <div class="p-3 border">row1col3</div>
+    </div>
+</div>
+<div class = "row p-3">
+    
+    <div class = "col">
+        <div class="p-3 border">row2col1</div>
+    </div>
+    <div class = "col">
+        <div class="p-3 border"><strong>row2col2</strong></div>
+    </div>
+    <div class = "col">
+        <div class="p-3 border">row2col3</div>
+    </div>
+</div>
+</div>
+{% endblock %}
