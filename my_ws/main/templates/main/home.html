@@ -1,0 +1,25 @@
+{% extends '/home/koza/django-apps/my_ws/main/templates/main/base.html' %}
+
+{% block title %}
+    <title>SWB - Home</title>
+{% endblock %}
+
+{% block registrationButton %}
+<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <a href="/register" class="btn btn-outline-primary btn-lg" tabindex="-1">Sign Up</a>
+</div>
+{% endblock %}
+
+{% block loginButton %}
+<a href="/login" class="btn btn-outline-light btn-lg" tabindex="-1">Login</a>
+{% endblock %}
+
+{% block logoutButton %}
+<div class="d-grid gap-2 d-md-flex justify-content-md-end">
+    <a href="/logout" class="btn btn-outline-primary btn-lg" tabindex="-1">Logout</a>
+</div>
+{% endblock %}
+
+{% block homeContent %}
+<h1>User {{user}}</h1>
+{% endblock %}

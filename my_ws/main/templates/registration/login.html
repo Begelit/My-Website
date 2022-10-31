@@ -1,0 +1,30 @@
+{% extends '/home/koza/django-apps/my_ws/main/templates/main/base.html' %}
+
+{% block title %}
+    <title>SWB - Login</title>
+{% endblock %}
+
+{% block logincontent %}
+<form method ="POST" class="row border rounded-3 border-primary bg-light p-3">
+    {% csrf_token %}
+    {{form}}
+    <div class="col-6 p-3">
+        <button type="submit" class="btn btn-outline-dark btn-lg"><strong>Login</strong></button>
+    </div>
+</form><!--
+<div class="container-sm rounded-3 border-primary shadow-lg ">
+    <form method ="POST" class="row border rounded-3 border-primary bg-dark">
+        <div class="col-12 p-3">
+            <label for="inputEmail4"class="form-label text-primary"><strong>Email</strong></label>
+            <input type="email" class="form-control" id="inputEmail" placeholder="Email">
+        </div>
+        <div class="col-12 p-3">
+            <label for="inputPassword4"class="form-label text-primary"><strong>Password</strong></label>
+            <input type="password" class="form-control" id="inputPassword" placeholder="Number">
+        </div>
+        <div class="col-6 p-3">
+            <button type="submit" class="btn btn-outline-primary btn-lg"><strong>Login</strong></button>
+        </div>
+    </form>
+</div>-->
+{% endblock %}
