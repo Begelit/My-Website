@@ -1,0 +1,510 @@
+{% extends 'test_app/base.html' %}
+
+{% block title %}
+<title>SWB - Home</title>
+{% endblock %}
+
+{% block homeContent %}
+<h1 id="test">index page {{text}}</h1>
+{% endblock %}
+
+{% block canvasBlock %}
+<canvas class="visualizer" width="640" height="100"></canvas>
+{% endblock %}
+
+{% block wsScript %}
+<!--
+<script>
+    const heading = document.querySelector("h3");
+    heading.textContent = "CLICK HERE TO START";
+    document.body.addEventListener("click", init);
+
+    function init() {
+
+        document.body.removeEventListener("click", init);
+
+        // Older browsers might not implement mediaDevices at all, so we set an empty object first
+        if (navigator.mediaDevices === undefined) {
+            navigator.mediaDevices = {};
+        }
+
+        // Some browsers partially implement mediaDevices. We can't assign an object
+        // with getUserMedia as it would overwrite existing properties.
+        // Add the getUserMedia property if it's missing.
+        if (navigator.mediaDevices.getUserMedia === undefined) {
+            navigator.mediaDevices.getUserMedia = function (constraints) {
+                // First get ahold of the legacy getUserMedia, if present
+                const getUserMedia =
+                    navigator.webkitGetUserMedia ||
+                    navigator.mozGetUserMedia ||
+                    navigator.msGetUserMedia;
+
+                // Some browsers just don't implement it - return a rejected promise with an error
+                // to keep a consistent interface
+                if (!getUserMedia) {
+                    return Promise.reject(
+                    new Error("getUserMedia is not implemented in this browser")
+                    );
+                }
+            }
+
+            // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+            return new Promise(function (resolve, reject) {
+                    getUserMedia.call(navigator, constraints, resolve, reject);
+                }
+            );
+        }
+        
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+            sampleRate: 16000,
+        });
+        
+        //const voiceSelect = document.getElementById("voice");
+        //console.log(audioCtx);
+
+        let stream;
+        //let source;
+        let microphone;
+        let analyser;
+        let dataArray;
+
+        //let recBuffers = [[], []];
+        //let recLength = 0;
+        let numChannels = 2;
+
+        /*
+        const analyser = audioCtx.createAnalyser();
+        analyser.minDecibels = -90;
+        analyser.maxDecibels = -10;
+        analyser.smoothingTimeConstant = 0.85;
+
+        const distortion = audioCtx.createWaveShaper();
+        const gainNode = audioCtx.createGain();
+        const biquadFilter = audioCtx.createBiquadFilter();
+        const convolver = audioCtx.createConvolver();
+
+        const echoDelay = createEchoDelayEffect(audioCtx);
+        */
+        //console.log('--------------',audioCtx.sampleRate);
+
+        /*
+        let soundSource;
+        ajaxRequest = new XMLHttpRequest();
+
+        ajaxRequest.open(
+            "GET",
+            "https://mdn.github.io/voice-change-o-matic/audio/concert-crowd.ogg",
+            true
+        );
+
+        ajaxRequest.responseType = "arraybuffer";
+
+        ajaxRequest.onload = function () {
+            const audioData = ajaxRequest.response;
+
+            audioCtx.decodeAudioData(
+                audioData,
+                function (buffer) {
+                        soundSource = audioCtx.createBufferSource();
+                        convolver.buffer = buffer;
+                        console.log(soundSource)
+                },
+                function (e) {
+                        console.log("Error with decoding audio data" + e.err);
+                    }
+            );
+        };
+        
+        ajaxRequest.send(); */
+
+        // Set up canvas context for visualizer
+        const canvas = document.querySelector(".visualizer");
+        const canvasCtx = canvas.getContext("2d");
+
+        const intendedWidth = document.querySelector(".wrapper").clientWidth;
+        canvas.setAttribute("width", intendedWidth);
+        //const visualSelect = document.getElementById("visual");
+        let drawVisual;
+          // Main block for doing the audio recording
+        if (navigator.mediaDevices.getUserMedia) {
+            console.log("getUserMedia supported.");
+            const constraints = { audio: true };
+            navigator.mediaDevices
+            .getUserMedia(constraints)
+            .then(function (stream) {
+
+                microphone = audioCtx.createMediaStreamSource(stream);
+                analyser = audioCtx.createAnalyser();
+                analyser.fftsize = 16384;
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                microphone.connect(analyser);
+                visualize(dataArray, bufferLength);
+                
+                /*
+                let context = microphone.context;
+                let node = (context.createScriptProcessor || context.createJavaScriptNode).call(context, 16384, numChannels, numChannels);
+                //let recBuffers = [[], []];
+                let recLength = 0;
+                node.oonaudioprocess = (e) => {
+                    //if (!listening) return;
+                    console.log(e);
+                    let recBuffers = [[], []];
+
+                    for (var i = 0; i < numChannels; i++) {
+                        recBuffers[i].push(e.inputBuffer.getChannelData(i));
+                        console.log('channel',i,e.inputBuffer.getChannelData(i));
+                    }
+                    console.log(recBuffers);
+
+                    recLength = recBuffers[0][0].length;
+
+                    console.log('length - - - - -', recLength);
+
+                    mer_b = mergeBuffers(recBuffers[0], recLength);
+                    console.log(mer_b);
+                }
+                microphone.connect(node);
+                node.connect(context.destination);
+                */
+                
+                /*source.connect(distortion);
+                distortion.connect(biquadFilter);
+                biquadFilter.connect(gainNode);
+                convolver.connect(gainNode);
+                echoDelay.placeBetween(gainNode, analyser);
+                analyser.connect(audioCtx.destination);
+
+                visualize();
+                //voiceChange();*/
+            })
+            .catch(function (err) {
+                console.log("The following gUM error occured: " + err);
+            });
+        } else {
+            console.log("getUserMedia not supported on your browser!");
+        }
+
+        
+        function mergeBuffers(recBuffers, recLength) {
+            var result = new Float32Array(recLength);
+            var offset = 0;
+            for (var i = 0; i < recBuffers.length; i++) {
+                result.set(recBuffers[i], offset);
+                offset += recBuffers[i].length;
+            }
+            return result;
+        }
+        /*
+        function createEchoDelayEffect(audioContext) {
+            const delay = audioContext.createDelay(1);
+            const dryNode = audioContext.createGain();
+            const wetNode = audioContext.createGain();
+            const mixer = audioContext.createGain();
+            const filter = audioContext.createBiquadFilter();
+
+            delay.delayTime.value = 0.75;
+            dryNode.gain.value = 1;
+            wetNode.gain.value = 0;
+            filter.frequency.value = 1100;
+            filter.type = "highpass";
+
+            return {
+                
+                apply: function () {
+                    wetNode.gain.setValueAtTime(0.75, audioContext.currentTime);
+                },
+                discard: function () {
+                    wetNode.gain.setValueA
+
+                    tTime(0, audioContext.currentTime);
+                },
+                isApplied: function () {
+                    return wetNode.gain.value > 0;
+                },
+                placeBetween: function (inputNode, outputNode) {
+                    inputNode.connect(delay);
+                    delay.connect(wetNode);
+                    wetNode.connect(filter);
+                    filter.connect(delay);
+
+                    inputNode.connect(dryNode);
+                    dryNode.connect(mixer);
+                    wetNode.connect(mixer);
+                    mixer.connect(outputNode);
+                },
+            };
+        }
+        */
+        function visualize(dataArray,bufferLength) {
+            WIDTH = canvas.width;
+            HEIGHT = canvas.height;
+            //console.log(WIDTH,HEIGHT)
+
+            const visualSetting = "sinewave"//visualSelect.value;
+            //console.log(visualSetting);
+
+            if (visualSetting === "sinewave") {
+                //analyser.fftSize = 16384;
+                //const bufferLength = analyser.fftSize;
+                //console.log('-----------',bufferLength);
+
+                // We can use Float32Array instead of Uint8Array if we want higher precision
+                // const dataArray = new Float32Array(bufferLength);
+                //const dataArray = new Uint8Array(bufferLength);
+                //const new_dataArray = new Uint8Array(analyser.frequencyBinCount);
+                //console.log(dataArray)
+
+                canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+
+                const draw = function () {
+                    drawVisual = requestAnimationFrame(draw);
+
+                    analyser.getByteTimeDomainData(dataArray);
+                    //analyser.getFloatFrequencyData(dataArray);
+                    //analyser.getByteFrequencyData(new_dataArray)
+                    //console.log(dataArray)
+                    canvasCtx.fillStyle = "rgb(200, 200, 200)";
+                    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+
+                    canvasCtx.lineWidth = 2;
+                    canvasCtx.strokeStyle = "rgb(0, 0, 0)";
+
+                    canvasCtx.beginPath();
+                    
+                    const sliceWidth = (WIDTH * 1.0) / bufferLength;
+                    let x = 0;
+                    
+                    for (let i = 0; i < bufferLength; i++) {
+                        //console.log(i)
+                        let v = dataArray[i] / 128.0;
+                        let y = (v * HEIGHT) / 2;
+
+                        //new_dataArray[i] = v
+
+                        if (i === 0) {
+                            canvasCtx.moveTo(x, y)
+                        } else {
+                            canvasCtx.lineTo(x, y);
+                        }
+
+                        x += sliceWidth;
+                    }
+                    
+                    //console.log(new_dataArray)
+
+                    canvasCtx.lineTo(canvas.width, canvas.height / 2);
+                    canvasCtx.stroke();
+                }
+
+                draw();
+            }
+        }
+    }
+
+
+    var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
+    socket.onmessage = function(event){
+        var data = JSON.parse(event.data);
+        console.log(data);
+        document.querySelector('#test').innerText = data.message;
+    }
+
+</script> 
+-->
+
+<!-- ----------- --> <!-- ALTERNATIVE --><!-- ------------ -->
+<!-- ------------ --><!-- ----------- --><!-- ------------ -->
+<!-- ------------ --><!-- ----------- --><!-- ------------ -->
+
+<script>
+
+    'use strict';
+
+    const heading = document.querySelector("h3");
+    heading.textContent = "CLICK HERE TO START";
+    //document.body.addEventListener("click", main);
+    document.body.addEventListener("click", init);
+
+    const canvas = document.querySelector(".visualizer");
+    const canvasCtx = canvas.getContext("2d");
+
+    const intendedWidth = document.querySelector(".wrapper").clientWidth;
+    canvas.setAttribute("width", intendedWidth);
+    /*
+    document.body.addEventListener('click', (element) => {
+        init();
+        //document.querySelector('#click-to-start').remove();
+    }, {once: true});
+    */
+    const context = new AudioContext({sampleRate: 16000,});
+
+    async function init () {
+        if (context.state === 'suspended') {
+            await context.resume();
+        }
+        const micStream = await navigator.mediaDevices.getUserMedia({
+            audio: true, /*{
+                echoCancellation: false,
+                autoGainControl: false,
+                noiseSuppression: false,
+                latency: 0,
+            },*/
+        });
+        const micSourceNode = context.createMediaStreamSource(micStream);
+        const recordingProperties = {
+            numberOfChannels: micSourceNode.channelCount,
+            sampleRate: context.sampleRate,
+            bufferLength: Math.round((context.sampleRate/2)/128)*128,
+        };
+        console.log(recordingProperties);
+        
+        const recordingNode = await setupRecordingWorkletNode(recordingProperties);
+        //const monitorNode = context.createGain();
+        //const analyser = context.createAnalyser();
+        //analyser.fftsize = 16384;
+
+        micSourceNode
+        .connect(recordingNode)
+        //.connect(monitorNode)
+        .connect(context.destination);
+  
+        const recordingCallback = handleRecording(recordingNode.port, recordingProperties);
+
+        recordingNode.port.onmessage = (event) => {
+            //console.log(event.data.inpgain);
+            recordingCallback(event);
+            //visualize(dataArray,128,analyser);
+        };
+
+        
+    } 
+
+    function handleRecording(recording_port, recording_properties){
+        let current_bufferLength = 0;
+        const recordingEventCallback = async (event) => {
+            if(event.data.message === "MAX_BUFFER_LENGTH"){
+                console.log(event.data);    
+            }
+            
+        };
+        return recordingEventCallback;
+    }
+
+    /**
+     * Creates ScriptProcessor to record and track microphone audio.
+     * @param {object} recordingProperties
+     * @param {number} properties.numberOfChannels
+     * @param {number} properties.sampleRate
+     * @return {AudioWorkletNode} Recording node related components for the app.
+     */
+    async function setupRecordingWorkletNode(recordingProperties) {
+        await context.audioWorklet.addModule('static/dj_app/js/recorder_worklet.js');
+
+        const WorkletRecordingNode = new AudioWorkletNode(
+            context,
+            'recorder_worklet',
+            {
+                processorOptions: recordingProperties,
+            },
+        );
+
+        return WorkletRecordingNode;
+    }
+
+
+
+    function visualize(dataArray,bufferLength,analyser) {
+            let WIDTH = canvas.width;
+            let HEIGHT = canvas.height;
+            //console.log(WIDTH,HEIGHT)
+
+            const visualSetting = "sinewave"//visualSelect.value;
+            //console.log(visualSetting);
+
+            if (visualSetting === "sinewave") {
+                //analyser.fftSize = 16384;
+                //const bufferLength = analyser.fftSize;
+                //console.log('-----------',bufferLength);
+
+                // We can use Float32Array instead of Uint8Array if we want higher precision
+                // const dataArray = new Float32Array(bufferLength);
+                //const dataArray = new Uint8Array(bufferLength);
+                //const new_dataArray = new Uint8Array(analyser.frequencyBinCount);
+                //console.log(dataArray)
+
+                canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+
+                const draw = function () {
+                    let drawVisual = requestAnimationFrame(draw);
+
+                    analyser.getByteTimeDomainData(dataArray);
+                    //analyser.getFloatFrequencyData(dataArray);
+                    //analyser.getByteFrequencyData(new_dataArray)
+                    //console.log(dataArray)
+                    canvasCtx.fillStyle = "rgb(200, 200, 200)";
+                    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+
+                    canvasCtx.lineWidth = 2;
+                    canvasCtx.strokeStyle = "rgb(0, 0, 0)";
+
+                    canvasCtx.beginPath();
+                    
+                    const sliceWidth = (WIDTH * 1.0) / bufferLength;
+                    let x = 0;
+                    
+                    for (let i = 0; i < bufferLength; i++) {
+                        //console.log(i)
+                        let v = dataArray[i]/ 128.0;
+                        let y = (v * HEIGHT) / 2;
+
+                        //new_dataArray[i] = v
+
+                        if (i === 0) {
+                            canvasCtx.moveTo(x, y)
+                        } else {
+                            canvasCtx.lineTo(x, y);
+                        }
+
+                        x += sliceWidth;
+                    }
+                    
+                    //console.log(new_dataArray)
+
+                    canvasCtx.lineTo(canvas.width, canvas.height / 2);
+                    canvasCtx.stroke();
+                }
+
+                draw();
+            }
+        }
+
+    //const heading = document.querySelector("h3");
+    //heading.textContent = "CLICK HERE TO START";
+    //document.body.addEventListener("click", init);
+
+
+    var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
+    socket.onmessage = function(event){
+        var data = JSON.parse(event.data);
+        console.log(data);
+        document.querySelector('#test').innerText = data.message;
+    }
+</script>
+{% endblock %}
+
+{% block styleBlock %}
+<style>
+.wrapper {
+    height: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+canvas {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    margin-bottom: -3px;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.7), 0 3px 4px rgba(0, 0, 0, 0.7);
+    }
+</style>
+{% endblock %}
