@@ -117,8 +117,6 @@ function _writeStringToArray(aString, targetArray, offset) {
   
     // Write actual audio data starting at offset 44.
     _writeAudioBufferToArray(audioBuffer, waveFileData, 44, bitsPerSample);
-
-    //return waveFileData;
   
     return new Blob([waveFileData], {
       type: 'audio/wave',
@@ -131,9 +129,9 @@ function _writeStringToArray(aString, targetArray, offset) {
      * @param  {Boolean} as32BitFloat
   * @return {String} file url
      */
-  //function createLinkFromAudioBuffer(audioBuffer, as32BitFloat) {
-  //  const blob = _createWaveFileBlobFromAudioBuffer(audioBuffer, as32BitFloat);
-  //  return window.URL.createObjectURL(blob);
-  //}
+  function createLinkFromAudioBuffer(audioBuffer, as32BitFloat) {
+    const blob = _createWaveFileBlobFromAudioBuffer(audioBuffer, as32BitFloat);
+    return window.URL.createObjectURL(blob);
+  }
   
   //export default createLinkFromAudioBuffer;

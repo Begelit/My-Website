@@ -46,13 +46,16 @@
         }
         const micStream = await navigator.mediaDevices.getUserMedia({
             audio:  {
+                //channelCount: 1,
                 echoCancellation: false,
                 autoGainControl: false,
                 noiseSuppression: false,
                 latency: 0,
             },
         });
-        const micSourceNode = context.createMediaStreamSource(micStream);
+        const micSourceNode = await context.createMediaStreamSource(micStream);
+        //let track =  micStream.getAudioTracks()[0];
+        //await track.applyConstraints({channelCount:1,});
         const recordingProperties = {
             numberOfChannels: micSourceNode.channelCount,
             sampleRate: context.sampleRate,
@@ -64,6 +67,7 @@
         //const monitorNode = context.createGain();
         //const analyser = context.createAnalyser();
         //analyser.fftsize = 16384;
+        console.log(recordingNode);
 
         micSourceNode
         .connect(recordingNode)
@@ -93,9 +97,12 @@
                 for (let i = 0; i < recording_properties.numberOfChannels; i++) {
                     recordingBuffer.copyToChannel(event.data.buffer_array[i], i, 0);
                 }
-                let wave_array  = _createWaveFileBlobFromAudioBuffer(recordingBuffer, false);
+                //const wavUrl = createLinkFromAudioBuffer(recordingBuffer, false);
+                //console.log(wavUrl);
+                //let wave_array  = _createWaveFileBlobFromAudioBuffer(recordingBuffer, false);
                 //let wave_array = audioBufferToWav(recordingBuffer,false);
-                console.log(wave_array);
+                console.log(event.data);//recordingBuffer.getChannelData);
+                //console.log(wave_array);
             }
             
         };
