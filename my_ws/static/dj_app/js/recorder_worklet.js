@@ -23,10 +23,10 @@ class RecorderProcessor extends AudioWorkletProcessor{
         }
         this._recording_buffer = new Array(this.number_of_channels)
             .fill(new Float32Array(this.buffer_length));
-        //this.visualizer_recording_buffer = new Array(this.number_of_channels)
-        //    .fill(new Float32Array(this.visualizer_bufferLength));
+        this.visualizer_recording_buffer = new Array(this.number_of_channels)
+            .fill(new Float32Array(this.visualizer_bufferLength));
         this.current_bufferLength = 0;
-        //this.current_visualizer_bufferLength = 0;
+        this.current_visualizer_bufferLength = 0;
         
         
     }
@@ -37,7 +37,7 @@ class RecorderProcessor extends AudioWorkletProcessor{
                 for (let sample = 0; sample < inputs[input][channel].length; sample++) {
                     const current_sample = inputs[input][channel][sample];
                     this._recording_buffer[channel][this.current_bufferLength+sample] = current_sample;
-                    //this.visualizer_recording_buffer[channel][this.current_visualizer_bufferLength+sample] = current_sample; 
+                    this.visualizer_recording_buffer[channel][this.current_visualizer_bufferLength+sample] = current_sample; 
                     outputs[input][channel][sample] = current_sample;
                     // Sum values for visualizer
                     //this.sampleSum += currentSample;
@@ -58,14 +58,12 @@ class RecorderProcessor extends AudioWorkletProcessor{
                 message: 'MAX_BUFFER_LENGTH',
                 recording_length: this.current_bufferLength + 128,
                 buffer_array: this._recording_buffer,
-                vis: this.visualizer_bufferLength,
             });
 
             this.current_bufferLength = 0;
             this._recording_buffer = new Array(this.number_of_channels)
                 .fill(new Float32Array(this.buffer_length));
         }
-        /*
         if (this.current_visualizer_bufferLength + 128 < this.visualizer_bufferLength){
             this.current_visualizer_bufferLength += 128;
         } else {
@@ -78,7 +76,6 @@ class RecorderProcessor extends AudioWorkletProcessor{
             this.visualizer_recording_buffer = new Array(this.number_of_channels)
                 .fill(new Float32Array(this.visualizer_bufferLength));
         }
-        */
         /*
         this.port.postMessage({
             message: 'UPDATE_VISUALIZERS',

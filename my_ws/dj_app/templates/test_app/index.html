@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block canvasBlock %}
-<canvas class="visualizer" width="640" height="100"></canvas>
+<canvas class="visualizer" width="1000" height="200"></canvas>
 {% endblock %}
 
 {% block wsScript %}
@@ -27,23 +27,25 @@
     //document.body.addEventListener("click", main);
     document.body.addEventListener("click", init);
 
-    const canvas = document.querySelector(".visualizer");
-    const canvasCtx = canvas.getContext("2d");
+    //const intendedWidth = document.querySelector(".wrapper").clientWidth;
+    //canvas.setAttribute("width", intendedWidth);
+    //const visualSelect = document.getElementById("visual");
+    //let drawVisual;
 
-    const intendedWidth = document.querySelector(".wrapper").clientWidth;
-    canvas.setAttribute("width", intendedWidth);
+    const context = new AudioContext({sampleRate: 16000,});
+
     /*
     document.body.addEventListener('click', (element) => {
         init();
         //document.querySelector('#click-to-start').remove();
     }, {once: true});
     */
-    const context = new AudioContext({sampleRate: 16000,});
 
     async function init () {
         if (context.state === 'suspended') {
             await context.resume();
         }
+        
         const micStream = await navigator.mediaDevices.getUserMedia({
             audio:  {
                 //channelCount: 1,
@@ -59,7 +61,8 @@
         const recordingProperties = {
             numberOfChannels: micSourceNode.channelCount,
             sampleRate: context.sampleRate,
-            bufferLength: Math.round((context.sampleRate/2)/128)*128,
+            bufferLength: context.sampleRate,//Math.round((context.sampleRate/2)/128)*128,
+            visualizeBufferLength: Math.round((context.sampleRate/4)/128)*128,
         };
         console.log(recordingProperties);
         
@@ -75,10 +78,11 @@
         .connect(context.destination);
   
         const recordingCallback = handleRecording(recordingNode.port, recordingProperties);
-
+        const visualizerCallback = visualizer(recordingNode.port);
         recordingNode.port.onmessage = (event) => {
             //console.log(event.data.inpgain);
             recordingCallback(event);
+            visualizerCallback(event);
             //visualize(dataArray,128,analyser);
         };
 
@@ -88,6 +92,7 @@
     function handleRecording(recording_port, recording_properties){
         let current_bufferLength = 0;
         const recordingEventCallback = async (event) => {
+            console.log(event.data);
             if(event.data.message === "MAX_BUFFER_LENGTH"){
                 const recordingBuffer = context.createBuffer(
                     recording_properties.numberOfChannels,
@@ -97,11 +102,24 @@
                 for (let i = 0; i < recording_properties.numberOfChannels; i++) {
                     recordingBuffer.copyToChannel(event.data.buffer_array[i], i, 0);
                 }
+                /*
+                let new_array_1 = event.data.buffer_array[0];
+                let new_array_2 = event.data.buffer_array[1];
+                for (let i = 0; i < new_array_1.length; i++){
+                    if (new_array_1[i] === new_array_2[i]){
+                        console.log('hey');
+                    }
+                }
+                */
+               //console.log(Math.max(...event.data.buffer_array[0]));
+                
+
                 //const wavUrl = createLinkFromAudioBuffer(recordingBuffer, false);
                 //console.log(wavUrl);
                 //let wave_array  = _createWaveFileBlobFromAudioBuffer(recordingBuffer, false);
                 //let wave_array = audioBufferToWav(recordingBuffer,false);
-                console.log(event.data);//recordingBuffer.getChannelData);
+                //console.log(event.data);
+                //console.log(recordingBuffer);
                 //console.log(wave_array);
             }
             
@@ -130,8 +148,93 @@
         return WorkletRecordingNode;
     }
 
+    function visualizer(recording_port) {
+        // Set up canvas context for visualizer
+        const canvas = document.querySelector(".visualizer");
+        const canvasCtx = canvas.getContext("2d");
+        //const intendedWidth = document.querySelector(".wrapper").clientWidth;
+        //canvas.setAttribute("width", intendedWidth);
+        const width = canvas.width;
+        const height = canvas.height;
+        let gain = 0;
+
+        const visualizerEventCallback = async (event) => {
+            if(event.data.message === "MAX_BUFFER_LENGTH"){
+                gain =event.data.buffer_array[0];
+                //console.log(gain);
+                draw();
+            }
+        };
+        function draw() {
+            let line_height = 0;
+            canvasCtx.fillStyle = "rgb(200,200,200)"; 
+            canvasCtx.fillRect(0,0,width,height);
+            line_height = Math.round((height/2) * Math.max(...gain));
+            canvasCtx.fillStyle = "rgb(255,0,0)"; 
+            canvasCtx.fillRect(0,height/2-line_height,width,line_height);
+
+            // Request render frame regardless.
+            // If visualizers are disabled, function can still wait for enable.
+            requestAnimationFrame(draw);
+        }
+        return visualizerEventCallback;
+    }
 
 
+function visualize_() {
+    WIDTH = canvas.width;
+    HEIGHT = canvas.height;
+
+    const visualSetting = visualSelect.value;
+    console.log(visualSetting);
+
+    if (visualSetting === "sinewave") {
+      analyser.fftSize = 2048;
+      const bufferLength = analyser.fftSize;
+      console.log(bufferLength);
+
+      // We can use Float32Array instead of Uint8Array if we want higher precision
+      // const dataArray = new Float32Array(bufferLength);
+      const dataArray = new Uint8Array(bufferLength);
+
+      canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
+
+      const draw = function () {
+        drawVisual = requestAnimationFrame(draw);
+
+        analyser.getByteTimeDomainData(dataArray);
+
+        canvasCtx.fillStyle = "rgb(200, 200, 200)";
+        canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        canvasCtx.lineWidth = 2;
+        canvasCtx.strokeStyle = "rgb(0, 0, 0)";
+
+        canvasCtx.beginPath();
+
+        const sliceWidth = (WIDTH * 1.0) / bufferLength;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          let v = dataArray[i] / 128.0;
+          let y = (v * HEIGHT) / 2;
+
+          if (i === 0) {
+            canvasCtx.moveTo(x, y);
+          } else {
+            canvasCtx.lineTo(x, y);
+          }
+
+          x += sliceWidth;
+        }
+
+        canvasCtx.lineTo(canvas.width, canvas.height / 2);
+        canvasCtx.stroke();
+      };
+
+      draw();
+    }}
+    /*
     function visualize(dataArray,bufferLength,analyser) {
             let WIDTH = canvas.width;
             let HEIGHT = canvas.height;
@@ -196,7 +299,7 @@
                 draw();
             }
         }
-
+    */
     //const heading = document.querySelector("h3");
     //heading.textContent = "CLICK HERE TO START";
     //document.body.addEventListener("click", init);
