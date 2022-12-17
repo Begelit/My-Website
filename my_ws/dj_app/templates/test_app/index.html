@@ -62,7 +62,7 @@
             numberOfChannels: micSourceNode.channelCount,
             sampleRate: context.sampleRate,
             bufferLength: context.sampleRate,//Math.round((context.sampleRate/2)/128)*128,
-            //visualizeBufferLength: Math.round((context.sampleRate/2)/128)*128,
+            visualizeBufferLength: Math.round((context.sampleRate/8)/128)*128,
         };
         console.log(recordingProperties);
         
@@ -155,40 +155,58 @@
         //canvas.setAttribute("width", intendedWidth);
         const width = canvas.width;
         const height = canvas.height;
-        let gain = 0;
-
+        //let gain = 0;
         const visualizerEventCallback = async (event) => {
-            if(event.data.message === "MAX_BUFFER_LENGTH"){
-                gain =event.data.buffer_array[0];
+            if(event.data.message === "MAX_VISUALIZER_BUFFER_LENGTH"){
+                //gain = event.data.buffer_array[0];
                 //console.log(gain);
-                draw();
+                draw(event);
             }
         };
         function draw() {
-            let line_height = 0;
-            canvasCtx.fillStyle = "rgb(200,200,200)"; 
-            canvasCtx.fillRect(0,0,width,height);
-            canvasCtx.lineWidth = 4;
-            //canvasCtx.strokeStyle = "rgb(255, 0, 0)";
-            
-            for (let i = 0; i < 124; i++){
-                let max = gain.slice(i*128,(i+1)*128).reduce((a,b) => Math.max(a,b), -Infinity);
-                let min = Math.min(...gain.slice(i*32,(i+1)*32));//gain.slice(i*32,(i+1)*32).reduce((a,b) => Math.min(a,b), -Infinity);
-                let max_height = Math.round((height/2) * max);
-                let min_height = Math.round((height/2) * min);
-                canvasCtx.beginPath();
-                canvasCtx.strokeStyle = "rgb(255, 0, 0)";
-                canvasCtx.moveTo(i*8, height/2);
-                canvasCtx.lineTo(i*8, height/2-max_height);
-                canvasCtx.closePath();
-                canvasCtx.stroke();
-                canvasCtx.beginPath();
-                canvasCtx.strokeStyle = "rgb(0, 0, 255)";
-                canvasCtx.moveTo(i*8+1, height/2);
-                canvasCtx.lineTo(i*8+1, height/2+Math.abs(min_height));
-                canvasCtx.closePath();
-                canvasCtx.stroke();
+            try{
+                let line_height = 0;
+                let gain = event.data.buffer_array[0];
+                canvasCtx.fillStyle = "rgb(200,200,200)"; 
+                canvasCtx.fillRect(0,0,width,height);
+                canvasCtx.lineWidth = 7;
+                //canvasCtx.strokeStyle = "rgb(255, 0, 0)";
+                let max = Math.max(...gain);
+                //let max = gain.reduce((a,b) => Math.max(a,b), -Infinity);
+                //console.log(max);
+                for (let i = 0; i < 127; i++){
+                    
+                    let freq_val = gain[i*16]*(1/max);
+                    let freq_height = Math.round((height/2) * freq_val);
+                    canvasCtx.beginPath();
+                    canvasCtx.strokeStyle = "rgb(255, 0, 0)";
+                    canvasCtx.moveTo(i*7, height/2);
+                    canvasCtx.lineTo(i*7, height/2-freq_height);
+                    canvasCtx.closePath();
+                    canvasCtx.stroke();
+                    if(i === 126){gain = null}
+                    
+                    /*
+                    let max = gain.slice(i*128,(i+1)*128).reduce((a,b) => Math.max(a,b), -Infinity);
+                    let min = Math.min(...gain.slice(i*32,(i+1)*32));//gain.slice(i*32,(i+1)*32).reduce((a,b) => Math.min(a,b), -Infinity);
+                    let max_height = Math.round((height/2) * max);
+                    let min_height = Math.round((height/2) * min);
+                    canvasCtx.beginPath();
+                    canvasCtx.strokeStyle = "rgb(255, 0, 0)";
+                    canvasCtx.moveTo(i*8, height/2);
+                    canvasCtx.lineTo(i*8, height/2-max_height);
+                    canvasCtx.closePath();
+                    canvasCtx.stroke();
+                    canvasCtx.beginPath();
+                    canvasCtx.strokeStyle = "rgb(0, 0, 255)";
+                    canvasCtx.moveTo(i*8+1, height/2);
+                    canvasCtx.lineTo(i*8+1, height/2+Math.abs(min_height));
+                    canvasCtx.closePath();
+                    canvasCtx.stroke();
+                    */
+                }
             }
+            catch{}
             //canvasCtx.stroke();
             //let max = gain.reduce((a,b) => Math.max(a,b), -Infinity);
             //max_height = Math.round((height/2) * max);
@@ -203,61 +221,6 @@
         }
         return visualizerEventCallback;
     }
-
-
-function visualize_() {
-    WIDTH = canvas.width;
-    HEIGHT = canvas.height;
-
-    const visualSetting = visualSelect.value;
-    console.log(visualSetting);
-
-    if (visualSetting === "sinewave") {
-      analyser.fftSize = 2048;
-      const bufferLength = analyser.fftSize;
-      console.log(bufferLength);
-
-      // We can use Float32Array instead of Uint8Array if we want higher precision
-      // const dataArray = new Float32Array(bufferLength);
-      const dataArray = new Uint8Array(bufferLength);
-
-      canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
-
-      const draw = function () {
-        drawVisual = requestAnimationFrame(draw);
-
-        analyser.getByteTimeDomainData(dataArray);
-
-        canvasCtx.fillStyle = "rgb(200, 200, 200)";
-        canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
-
-        canvasCtx.lineWidth = 2;
-        canvasCtx.strokeStyle = "rgb(0, 0, 0)";
-
-        canvasCtx.beginPath();
-
-        const sliceWidth = (WIDTH * 1.0) / bufferLength;
-        let x = 0;
-
-        for (let i = 0; i < bufferLength; i++) {
-          let v = dataArray[i] / 128.0;
-          let y = (v * HEIGHT) / 2;
-
-          if (i === 0) {
-            canvasCtx.moveTo(x, y);
-          } else {
-            canvasCtx.lineTo(x, y);
-          }
-
-          x += sliceWidth;
-        }
-
-        canvasCtx.lineTo(canvas.width, canvas.height / 2);
-        canvasCtx.stroke();
-      };
-
-      draw();
-    }}
 
     /*
     var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
