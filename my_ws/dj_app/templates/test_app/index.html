@@ -81,7 +81,7 @@
         const visualizerCallback = visualizer(recordingNode.port);
         recordingNode.port.onmessage = (event) => {
             //console.log(event.data.inpgain);
-            recordingCallback(event);
+            //recordingCallback(event);
             visualizerCallback(event);
             //visualize(dataArray,128,analyser);
         };
@@ -176,29 +176,29 @@
                 canvasCtx.fillRect(0,0,width,height);
                 canvasCtx.lineWidth = 8;
                 //canvasCtx.strokeStyle = "rgb(255, 0, 0)";
-                let max = 2*Math.max(...gain);
+                //let max = 2*Math.max(...gain);
                 //let min = Math.abs(Math.min(...gain));
                 //let max = gain.reduce((a,b) => Math.max(a,b), -Infinity);
                 //console.log(max);
                 for (let i = 0; i < 127; i++){
                     
-                    let freq_val = (gain[i*16]*2)*Math.exp(1/max);
+                    let freq_val = (gain[i*16])*2;//*Math.exp(1/max);
                     let freq_height = Math.round((height/2) * freq_val);
                     canvasCtx.beginPath();
                     canvasCtx.strokeStyle = "rgb("+(255-i*2).toString()+", 0, "+(i*2).toString()+")";
-                    canvasCtx.moveTo(i*8, height/2);
-                    canvasCtx.lineTo(i*8, height/2-freq_height);
+                    canvasCtx.moveTo(i*16, height/2);
+                    canvasCtx.lineTo(i*16, height/2-freq_height);
                     canvasCtx.closePath();
                     canvasCtx.stroke();
-                    
                     if(i === 126){
                         //console.log('trash');
                         gain = null;
                         //gain2=null;
                         freq_val=null;
                         freq_height=null;
-                        strStyle=null;
-                        max=null;
+                        //strStyle=null;
+                        //max=null;
+                        //event=null;
                     };
                     
                     

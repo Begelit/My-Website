@@ -53,6 +53,7 @@ class RecorderProcessor extends AudioWorkletProcessor{
                 buffer_array: this.visualizer_recording_buffer,
             });
             this.current_visualizer_bufferLength = 0;
+            this.visualizer_recording_buffer = null;
             this.visualizer_recording_buffer = new Array(this.number_of_channels)
                 .fill(new Float32Array(this.visualizer_bufferLength));
         }
@@ -68,6 +69,7 @@ class RecorderProcessor extends AudioWorkletProcessor{
             });
 
             this.current_bufferLength = 0;
+            this._recording_buffer = null;
             this._recording_buffer = new Array(this.number_of_channels)
                 .fill(new Float32Array(this.buffer_length));
         }
