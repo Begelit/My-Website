@@ -93,6 +93,7 @@
         let current_bufferLength = 0;
         const recordingEventCallback = async (event) => {
             if(event.data.message === "MAX_BUFFER_LENGTH"){
+                /*
                 const recordingBuffer = context.createBuffer(
                     recording_properties.numberOfChannels,
                     recording_properties.bufferLength,
@@ -101,6 +102,7 @@
                 for (let i = 0; i < recording_properties.numberOfChannels; i++) {
                     recordingBuffer.copyToChannel(event.data.buffer_array[i], i, 0);
                 }
+                */
                 /*
                 let new_array_1 = event.data.buffer_array[0];
                 let new_array_2 = event.data.buffer_array[1];
@@ -165,26 +167,41 @@
         };
         function draw() {
             try{
-                let line_height = 0;
-                let gain = event.data.buffer_array[0];
+                //let line_height = 0;
+                //let gain = 0;
+                //let gain2 = 0;
+                var gain = event.data.buffer_array[0];
+                //gain2 = event.data.buffer_array[1];
                 canvasCtx.fillStyle = "rgb(200,200,200)"; 
                 canvasCtx.fillRect(0,0,width,height);
-                canvasCtx.lineWidth = 7;
+                canvasCtx.lineWidth = 8;
                 //canvasCtx.strokeStyle = "rgb(255, 0, 0)";
-                let max = Math.max(...gain);
+                let max = 2*Math.max(...gain);
+                //let min = Math.abs(Math.min(...gain));
                 //let max = gain.reduce((a,b) => Math.max(a,b), -Infinity);
                 //console.log(max);
                 for (let i = 0; i < 127; i++){
                     
-                    let freq_val = gain[i*16]*(1/max);
+                    let freq_val = (gain[i*16]*2)*Math.exp(1/max);
                     let freq_height = Math.round((height/2) * freq_val);
                     canvasCtx.beginPath();
-                    canvasCtx.strokeStyle = "rgb(255, 0, 0)";
-                    canvasCtx.moveTo(i*7, height/2);
-                    canvasCtx.lineTo(i*7, height/2-freq_height);
+                    canvasCtx.strokeStyle = "rgb("+(255-i*2).toString()+", 0, "+(i*2).toString()+")";
+                    canvasCtx.moveTo(i*8, height/2);
+                    canvasCtx.lineTo(i*8, height/2-freq_height);
                     canvasCtx.closePath();
                     canvasCtx.stroke();
-                    if(i === 126){gain = null}
+                    
+                    if(i === 126){
+                        //console.log('trash');
+                        gain = null;
+                        //gain2=null;
+                        freq_val=null;
+                        freq_height=null;
+                        strStyle=null;
+                        max=null;
+                    };
+                    
+                    
                     
                     /*
                     let max = gain.slice(i*128,(i+1)*128).reduce((a,b) => Math.max(a,b), -Infinity);
