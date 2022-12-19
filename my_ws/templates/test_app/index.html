@@ -1,0 +1,247 @@
+{% extends 'test_app/base.html' %}
+
+{% block title %}
+<title>SWB - Home</title>
+{% endblock %}
+
+{% block homeContent %}
+<h1 id="test">index page {{text}}</h1>
+{% endblock %}
+
+{% block canvasBlock %}
+<canvas class="visualizer" width="1000" height="200"></canvas>
+{% endblock %}
+
+{% block wsScript %}
+
+<!-- ----------- --> <!-- ALTERNATIVE --><!-- ------------ -->
+<!-- ------------ --><!-- ----------- --><!-- ------------ -->
+<!-- ------------ --><!-- ----------- --><!-- ------------ -->
+
+<script>
+
+    'use strict';
+
+    const heading = document.querySelector("h3");
+    heading.textContent = "CLICK HERE TO START";
+    //document.body.addEventListener("click", main);
+    document.body.addEventListener("click", init);
+
+    const socket = new WebSocket('ws://localhost:8000/ws/some_url/');
+
+    //const intendedWidth = document.querySelector(".wrapper").clientWidth;
+    //canvas.setAttribute("width", intendedWidth);
+    //const visualSelect = document.getElementById("visual");
+    //let drawVisual;
+
+    const context = new AudioContext({sampleRate: 16000,});
+
+    /*
+    document.body.addEventListener('click', (element) => {
+        init();
+        //document.querySelector('#click-to-start').remove();
+    }, {once: true});
+    */
+
+    async function init () {
+        if (context.state === 'suspended') {
+            await context.resume();
+        }
+        
+        const micStream = await navigator.mediaDevices.getUserMedia({
+            audio:  {
+                //channelCount: 1,
+                echoCancellation: false,
+                autoGainControl: false,
+                noiseSuppression: false,
+                latency: 0,
+            },
+        });
+        const micSourceNode = await context.createMediaStreamSource(micStream);
+        //let track =  micStream.getAudioTracks()[0];
+        //await track.applyConstraints({channelCount:1,});
+        const recordingProperties = {
+            numberOfChannels: micSourceNode.channelCount,
+            sampleRate: context.sampleRate,
+            bufferLength: context.sampleRate,//Math.round((context.sampleRate/2)/128)*128,
+            visualizeBufferLength: Math.round((context.sampleRate/8)/128)*128,
+        };
+        console.log(recordingProperties);
+        
+        const recordingNode = await setupRecordingWorkletNode(recordingProperties);
+        //const monitorNode = context.createGain();
+        //const analyser = context.createAnalyser();
+        //analyser.fftsize = 16384;
+        console.log(recordingNode);
+
+        micSourceNode
+        .connect(recordingNode)
+        //.connect(monitorNode)
+        .connect(context.destination);
+  
+        const recordingCallback = handleRecording(recordingNode.port, recordingProperties);
+        const visualizerCallback = visualizer(recordingNode.port);
+        recordingNode.port.onmessage = (event) => {
+            //console.log(event.data.inpgain);
+            recordingCallback(event);
+            visualizerCallback(event);
+            //visualize(dataArray,128,analyser);
+        };
+
+        
+    } 
+
+    function handleRecording(recording_port, recording_properties){
+        let current_bufferLength = 0;
+        const recordingEventCallback = async (event) => {
+            if(event.data.message === "MAX_BUFFER_LENGTH"){
+                socket.send(JSON.stringify({
+                    'message': event.data.buffer_array[0],
+                    //username': user_username,
+                }));
+                /*
+                const recordingBuffer = context.createBuffer(
+                    recording_properties.numberOfChannels,
+                    recording_properties.bufferLength,
+                    recording_properties.sampleRate,
+                );
+                for (let i = 0; i < recording_properties.numberOfChannels; i++) {
+                    recordingBuffer.copyToChannel(event.data.buffer_array[i], i, 0);
+                }
+                */
+                /*
+                let new_array_1 = event.data.buffer_array[0];
+                let new_array_2 = event.data.buffer_array[1];
+                for (let i = 0; i < new_array_1.length; i++){
+                    if (new_array_1[i] === new_array_2[i]){
+                        console.log('hey');
+                    }
+                }
+                */
+               //console.log(Math.max(...event.data.buffer_array[0]));
+                
+
+                //const wavUrl = createLinkFromAudioBuffer(recordingBuffer, false);
+                //console.log(wavUrl);
+                //let wave_array  = _createWaveFileBlobFromAudioBuffer(recordingBuffer, false);
+                //let wave_array = audioBufferToWav(recordingBuffer,false);
+                //console.log(event.data);
+                //console.log(recordingBuffer);
+                //console.log(wave_array);
+            }
+            
+        };
+        return recordingEventCallback;
+    }
+
+    /**
+     * Creates ScriptProcessor to record and track microphone audio.
+     * @param {object} recordingProperties
+     * @param {number} properties.numberOfChannels
+     * @param {number} properties.sampleRate
+     * @return {AudioWorkletNode} Recording node related components for the app.
+     */
+    async function setupRecordingWorkletNode(recordingProperties) {
+        await context.audioWorklet.addModule('static/dj_app/js/recorder_worklet.js');
+
+        const WorkletRecordingNode = new AudioWorkletNode(
+            context,
+            'recorder_worklet',
+            {
+                processorOptions: recordingProperties,
+            },
+        );
+
+        return WorkletRecordingNode;
+    }
+
+    function visualizer(recording_port) {
+        // Set up canvas context for visualizer
+        const canvas = document.querySelector(".visualizer");
+        const canvasCtx = canvas.getContext("2d");
+        //const intendedWidth = document.querySelector(".wrapper").clientWidth;
+        //canvas.setAttribute("width", intendedWidth);
+        const width = canvas.width;
+        const height = canvas.height;
+        //let gain = 0;
+        const visualizerEventCallback = async (event) => {
+            if(event.data.message === "MAX_VISUALIZER_BUFFER_LENGTH"){
+                //gain = event.data.buffer_array[0];
+                //console.log(gain);
+                draw(event);
+            }
+        };
+        function draw() {
+            try{
+                //let line_height = 0;
+                //let gain = 0;
+                //let gain2 = 0;
+                var gain = event.data.buffer_array[0];
+                //gain2 = event.data.buffer_array[1];
+                canvasCtx.fillStyle = "rgb(200,200,200)"; 
+                canvasCtx.fillRect(0,0,width,height);
+                canvasCtx.lineWidth = 8;
+                //canvasCtx.strokeStyle = "rgb(255, 0, 0)";
+                //let max = 2*Math.max(...gain);
+                //let min = Math.abs(Math.min(...gain));
+                //let max = gain.reduce((a,b) => Math.max(a,b), -Infinity);
+                //console.log(max);
+                for (let i = 0; i < 127; i++){
+                    
+                    let freq_val = (gain[i*16])*2;//*Math.exp(1/max);
+                    let freq_height = Math.round((height/2) * freq_val);
+                    canvasCtx.beginPath();
+                    canvasCtx.strokeStyle = "rgb("+(255-i*2).toString()+", 0, "+(i*2).toString()+")";
+                    canvasCtx.moveTo(i*16, height/2);
+                    canvasCtx.lineTo(i*16, height/2-freq_height);
+                    canvasCtx.closePath();
+                    canvasCtx.stroke();
+                    if(i === 126){
+                        //console.log('trash');
+                        gain = null;
+                        freq_val=null;
+                        freq_height=null;
+                        //max=null;
+                    };
+
+                }
+            } catch {
+                gain = null;
+                //freq_val=null;
+                //freq_height=null; 
+            }
+
+            requestAnimationFrame(draw);
+        }
+        return visualizerEventCallback;
+    }
+
+    
+
+    /*
+    var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
+    socket.onmessage = function(event){
+        var data = JSON.parse(event.data);
+        console.log(data);
+        document.querySelector('#test').innerText = data.message;
+    }
+    */
+    
+</script>
+{% endblock %}
+
+{% block styleBlock %}
+<style>
+.wrapper {
+    height: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+canvas {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    margin-bottom: -3px;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.7), 0 3px 4px rgba(0, 0, 0, 0.7);
+    }
+</style>
+{% endblock %}
