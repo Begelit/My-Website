@@ -39,31 +39,11 @@ class RecorderProcessor extends AudioWorkletProcessor{
                     this._recording_buffer[channel][this.current_bufferLength+sample] = current_sample;
                     this.visualizer_recording_buffer[channel][this.current_visualizer_bufferLength+sample] = current_sample; 
                     outputs[input][channel][sample] = current_sample;
-                    // Sum values for visualizer
-                    //this.sampleSum += currentSample;
                 }
             }
         }
 
-        if(this.current_bufferLength + 128 < this.buffer_length){
-            this.current_bufferLength += 128;
-            /*
-            this.port.postMessage({
-                message: 'CONTINUE_BUFFER_CREATING',
-                recording_length: this.current_bufferLength,
-                buffer_array: this._recording_buffer,
-            });*/
-        } else {
-            this.port.postMessage({
-                message: 'MAX_BUFFER_LENGTH',
-                recording_length: this.current_bufferLength + 128,
-                buffer_array: this._recording_buffer,
-            });
-
-            this.current_bufferLength = 0;
-            this._recording_buffer = new Array(this.number_of_channels)
-                .fill(new Float32Array(this.buffer_length));
-        }
+       
         if (this.current_visualizer_bufferLength + 128 < this.visualizer_bufferLength){
             this.current_visualizer_bufferLength += 128;
         } else {
@@ -73,16 +53,27 @@ class RecorderProcessor extends AudioWorkletProcessor{
                 buffer_array: this.visualizer_recording_buffer,
             });
             this.current_visualizer_bufferLength = 0;
+            this.visualizer_recording_buffer = null;
             this.visualizer_recording_buffer = new Array(this.number_of_channels)
                 .fill(new Float32Array(this.visualizer_bufferLength));
         }
-        /*
-        this.port.postMessage({
-            message: 'UPDATE_VISUALIZERS',
-            inpgain: inputs,
-            outpgain: outputs,
-        });
-        */
+        
+        if(this.current_bufferLength + 128 < this.buffer_length){
+            this.current_bufferLength += 128;
+        } else {
+            this.port.postMessage({
+                message: 'MAX_BUFFER_LENGTH',
+                recording_length: this.current_bufferLength + 128,
+                buffer_array: this._recording_buffer,
+
+            });
+
+            this.current_bufferLength = 0;
+            this._recording_buffer = null;
+            this._recording_buffer = new Array(this.number_of_channels)
+                .fill(new Float32Array(this.buffer_length));
+        }
+
         return true;
     }
 }
