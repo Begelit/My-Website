@@ -27,14 +27,19 @@
     //document.body.addEventListener("click", main);
     document.body.addEventListener("click", init);
 
-    const socket = new WebSocket('ws://localhost:8000/ws/some_url/');
+    //const socket = new WebSocket('ws://localhost:8000/ws/some_url/');
+    //socket.binaryType = "arraybuffer"
+    //socket.onopen = onopen;
+    //socket.onmessage = onmessage;
+    //socket.onclose = onclose;
+    //socket.onerror = onerror;
 
     //const intendedWidth = document.querySelector(".wrapper").clientWidth;
     //canvas.setAttribute("width", intendedWidth);
     //const visualSelect = document.getElementById("visual");
     //let drawVisual;
 
-    const context = new AudioContext({sampleRate: 16000,});
+    const context = new AudioContext({sampleRate: 10368,});
 
     /*
     document.body.addEventListener('click', (element) => {
@@ -63,7 +68,7 @@
         const recordingProperties = {
             numberOfChannels: micSourceNode.channelCount,
             sampleRate: context.sampleRate,
-            bufferLength: context.sampleRate,//Math.round((context.sampleRate/2)/128)*128,
+            bufferLength: context.sampleRate,//Math.round((context.sampleRate/4)/128)*128 + 128,
             visualizeBufferLength: Math.round((context.sampleRate/8)/128)*128,
         };
         console.log(recordingProperties);
@@ -92,13 +97,20 @@
     } 
 
     function handleRecording(recording_port, recording_properties){
-        let current_bufferLength = 0;
+        //let current_bufferLength = 0;
+        let frame_count = 0;
         const recordingEventCallback = async (event) => {
             if(event.data.message === "MAX_BUFFER_LENGTH"){
+                console.log(event);
+                //Meyda.bufferSize = recording_properties.bufferLength;
+                //console.log(Meyda.extract("mfcc", event.data.buffer_array[0]))
+                //frame_count+=1
+                /*
                 socket.send(JSON.stringify({
-                    'message': event.data.buffer_array[0],
-                    //username': user_username,
+                    'array': event.data.buffer_array[0],
+                    'frame_id': frame_count,
                 }));
+                */
                 /*
                 const recordingBuffer = context.createBuffer(
                     recording_properties.numberOfChannels,
@@ -108,6 +120,24 @@
                 for (let i = 0; i < recording_properties.numberOfChannels; i++) {
                     recordingBuffer.copyToChannel(event.data.buffer_array[i], i, 0);
                 }
+                */
+                //socket.send(event.data.buffer_array[0].buffer)
+                //socket.send(recordingBuffer)
+                /*
+                socket.onopen = function open(){
+                    socket.send(event.data.buffer_array[0])
+                }
+                */
+                //console.log(event.data.buffer_array[0].buffer);
+                //socket.onopen = function(){console.log(recordingBuffer);socket.send(recordingBuffer);}
+                //socket.send(event.data.buffer_array[0].buffer)
+                /*
+                console.log(event.data.buffer_array[0].buffer,//recordingBuffer.getChannelData(0),
+                JSON.parse(JSON.stringify({
+                    'array': recordingBuffer,
+                    'frame_id': frame_count,
+
+                })));
                 */
                 /*
                 let new_array_1 = event.data.buffer_array[0];
@@ -165,9 +195,10 @@
         const height = canvas.height;
         //let gain = 0;
         const visualizerEventCallback = async (event) => {
+            //MAX_BUFFER_LENGTH MAX_VISUALIZER_BUFFER_LENGTH
             if(event.data.message === "MAX_VISUALIZER_BUFFER_LENGTH"){
                 //gain = event.data.buffer_array[0];
-                //console.log(gain);
+                //console.log(event);
                 draw(event);
             }
         };
@@ -180,23 +211,23 @@
                 //gain2 = event.data.buffer_array[1];
                 canvasCtx.fillStyle = "rgb(200,200,200)"; 
                 canvasCtx.fillRect(0,0,width,height);
-                canvasCtx.lineWidth = 8;
+                canvasCtx.lineWidth = 32;
                 //canvasCtx.strokeStyle = "rgb(255, 0, 0)";
                 //let max = 2*Math.max(...gain);
                 //let min = Math.abs(Math.min(...gain));
                 //let max = gain.reduce((a,b) => Math.max(a,b), -Infinity);
                 //console.log(max);
-                for (let i = 0; i < 127; i++){
+                for (let i = 0; i < 20; i++){
                     
-                    let freq_val = (gain[i*16])*2;//*Math.exp(1/max);
+                    let freq_val = (gain[i*64])*2;//*Math.exp(1/max);
                     let freq_height = Math.round((height/2) * freq_val);
                     canvasCtx.beginPath();
-                    canvasCtx.strokeStyle = "rgb("+(255-i*2).toString()+", 0, "+(i*2).toString()+")";
-                    canvasCtx.moveTo(i*16, height/2);
-                    canvasCtx.lineTo(i*16, height/2-freq_height);
+                    canvasCtx.strokeStyle = "rgb("+(255-i*12).toString()+", 0, "+(i*12).toString()+")";
+                    canvasCtx.moveTo(i*64, height/2);
+                    canvasCtx.lineTo(i*64, height/2-freq_height);
                     canvasCtx.closePath();
                     canvasCtx.stroke();
-                    if(i === 126){
+                    if(i === 15){
                         //console.log('trash');
                         gain = null;
                         freq_val=null;
