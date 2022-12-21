@@ -21,51 +21,57 @@ class RecorderProcessor extends AudioWorkletProcessor{
             this.number_of_channels = 1//numberOfChannels;
             this.visualizer_bufferLength = visualizeBufferLength;
         }
-        this._recording_buffer = new Array(this.number_of_channels)
-            .fill(new Float32Array(this.buffer_length));
+        //this._recording_buffer = new Array(this.number_of_channels)
+        //    .fill(new Float32Array(this.buffer_length));
         this.visualizer_recording_buffer = new Array(this.number_of_channels)
             .fill(new Float32Array(this.visualizer_bufferLength));
         this.current_bufferLength = 0;
         this.current_visualizer_bufferLength = 0;
         this.mfcc_bool = false;
-        
+        this.mfcc_count = 0;
         
     }
 
     process(inputs, outputs){
         for (let input = 0; input < 1; input++) {
-            for (let channel = 0; channel < 1; channel++) {//this.number_of_channels; channel++) {
+            for (let channel = 0; channel < this.number_of_channels; channel++) {//this.number_of_channels; channel++) {
                 for (let sample = 0; sample < inputs[input][channel].length; sample++) {
-                    
                     const current_sample = inputs[input][channel][sample];
                     if(this.mfcc_bool === false){
                         if(Math.abs(current_sample) >= 0.3){
                             this.mfcc_bool = true;
+                            this.port.postMessage({
+                                message: 'START_CREATE_BUFFER',
+                            });
                         }
                     }
-
-                    if(this.mfcc_bool === true ){
-                        this._recording_buffer[channel][this.current_bufferLength+sample] = current_sample;
-                    } 
-                    //this._recording_buffer[channel][this.current_bufferLength+sample] = current_sample;
+                    //if(this.mfcc_bool === true){
+                    //    this._recording_buffer[channel][this.current_bufferLength+sample] = current_sample;
+                    //} 
                     this.visualizer_recording_buffer[channel][this.current_visualizer_bufferLength+sample] = current_sample; 
-                    //outputs[input][channel][sample] = current_sample;
-                    //current_sample = null;
+                    outputs[input][channel][sample] = current_sample;
                 }
 
             }
         }
         if (this.mfcc_bool === true){
             if(this.current_bufferLength+128 < this.buffer_length){
+                this.port.postMessage({
+                    message: 'CONTINUE_CREATE_BUFFER',
+                    sample: outputs[0][0],
+                    mfcc_count: this.mfcc_count,
+                });
                 this.current_bufferLength += 128;
+                this.mfcc_count += 1;
             } else {
                 this.port.postMessage({
                     message: 'MAX_BUFFER_LENGTH',
-                    recording_length: this.current_bufferLength + 128,
-                    buffer_array: this._recording_buffer,
+                    sample: outputs[0][0],
+                    mfcc_count: this.mfcc_count,
                 });
                 this.mfcc_bool = false;
                 this.current_bufferLength = 0;
+                this.mfcc_count = 0;
             }
         }
 

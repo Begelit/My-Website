@@ -130,7 +130,7 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'dj_app','static'),
-
+    ('node_modules', os.path.join(BASE_DIR,'dj_app','node_modules/')),
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')

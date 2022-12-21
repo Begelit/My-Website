@@ -21,7 +21,7 @@
 <script>
 
     'use strict';
-
+    //Meyda.bufferSize = recording_properties.bufferLength;
     const heading = document.querySelector("h3");
     heading.textContent = "CLICK HERE TO START";
     //document.body.addEventListener("click", main);
@@ -100,8 +100,9 @@
         //let current_bufferLength = 0;
         let frame_count = 0;
         const recordingEventCallback = async (event) => {
-            if(event.data.message === "MAX_BUFFER_LENGTH"){
-                console.log(event);
+            
+            if(event.data.message === "MAX_BUFFER_LENGTH" || event.data.message === "CONTINUE_CREATE_BUFFER"){
+                console.log(event.data);
                 //Meyda.bufferSize = recording_properties.bufferLength;
                 //console.log(Meyda.extract("mfcc", event.data.buffer_array[0]))
                 //frame_count+=1
