@@ -8,6 +8,10 @@
 <h1 id="test">index page {{text}}</h1>
 {% endblock %}
 
+{% block commandBlock %}
+<h1 id="command"></h1>
+{% endblock %}
+
 {% block canvasBlock %}
 <canvas class="visualizer" width="1000" height="200"></canvas>
 {% endblock %}
@@ -35,7 +39,7 @@
     //document.body.addEventListener("click", main);
     document.body.addEventListener("click", init);
 
-    const socket = new WebSocket('ws://localhost:8000/ws/some_url/');
+    //const socket = new WebSocket('ws://localhost:8000/ws/some_url/');
     //socket.binaryType = "arraybuffer"
     //socket.onopen = onopen;
     //socket.onmessage = onmessage;
@@ -219,14 +223,14 @@
 
     
 
-    /*
+    
     var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
     socket.onmessage = function(event){
         var data = JSON.parse(event.data);
         console.log(data);
-        document.querySelector('#test').innerText = data.message;
+        document.querySelector('#command').innerText = data.command[0];
     }
-    */
+    
     
 </script>
 {% endblock %}

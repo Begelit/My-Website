@@ -195,8 +195,16 @@ class WSConsumer(WebsocketConsumer):
         out = F.log_softmax(out, dim=2)
         out = out.transpose(0, 1)
         print(out)
+
         decode = GreedyDecoder(out.transpose(0, 1))
+
         print(decode)
+
+        self.send(json.dumps({
+            'message': 'decode_callback',
+            'command': decode,
+            }
+        ))
         #decoded_preds, decoded_targets = GreedyDecoder(out.transpose(0, 1), targets, targets_len)
 
 
