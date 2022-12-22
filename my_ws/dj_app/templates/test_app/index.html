@@ -23,13 +23,13 @@
     'use strict';
 
     ///home/koza/zummit_project/django_app/dj_app/static/third_model.onnx
-    async function test(){
-        const sess = new onnx.InferenceSession();
-        await sess.loadModel("/static/third_model.onnx");
-    }
-    test();
+    // async function test(){
+    //    const sess = new onnx.InferenceSession();
+    //    await sess.loadModel("/static/third_model.onnx");
+    //}
+    //test();
     //print(a.print());
-    Meyda.bufferSize = 128;
+    //Meyda.bufferSize = 128;
     const heading = document.querySelector("h3");
     heading.textContent = "CLICK HERE TO START";
     //document.body.addEventListener("click", main);
@@ -106,20 +106,21 @@
 
     function handleRecording(recording_port, recording_properties){
 
-        let mfcc_array = new Array(81).fill(new Float32Array(128));
-        const transpose = matrix => matrix[0].map((col, i) => matrix.map(row => row[i]));
+        //let mfcc_array = new Array(81).fill(new Float32Array(128));
+        //const transpose = matrix => matrix[0].map((col, i) => matrix.map(row => row[i]));
 
         const recordingEventCallback = async (event) => {
-
+            /*
             if (event.data.message === "CONTINUE_CREATE_BUFFER"){
                 //console.log(Meyda.extract("mfcc",event.data.sample));
                 mfcc_array[event.data.mfcc_count] = Meyda.extract("mfcc", event.data.sample);
             }
+            */
             if(event.data.message === "MAX_BUFFER_LENGTH" ){
-                mfcc_array[event.data.mfcc_count] = Meyda.extract("mfcc", event.data.sample);
-                //console.log(mfcc_array);
-                tensor_arr = tf.tensor(transpose(mfcc_array)).print();
-                console.log(tensor_arr);
+                //mfcc_array[event.data.mfcc_count] = Meyda.extract("mfcc", event.data.sample);
+                console.log(event.data);
+                //tensor_arr = tf.tensor(transpose(mfcc_array)).print();
+                //console.log(tensor_arr);
 
             }
             
