@@ -21,7 +21,10 @@
 <script>
 
     'use strict';
-    //Meyda.bufferSize = recording_properties.bufferLength;
+
+
+    //print(a.print());
+    Meyda.bufferSize = 128;
     const heading = document.querySelector("h3");
     heading.textContent = "CLICK HERE TO START";
     //document.body.addEventListener("click", main);
@@ -97,69 +100,25 @@
     } 
 
     function handleRecording(recording_port, recording_properties){
-        //let current_bufferLength = 0;
-        let frame_count = 0;
+
+        let mfcc_array = new Array(81).fill(new Float32Array(128));
+        const transpose = matrix => matrix[0].map((col, i) => matrix.map(row => row[i]));
+
         const recordingEventCallback = async (event) => {
-            
-            if(event.data.message === "MAX_BUFFER_LENGTH" || event.data.message === "CONTINUE_CREATE_BUFFER"){
-                console.log(event.data);
-                //Meyda.bufferSize = recording_properties.bufferLength;
-                //console.log(Meyda.extract("mfcc", event.data.buffer_array[0]))
-                //frame_count+=1
-                /*
-                socket.send(JSON.stringify({
-                    'array': event.data.buffer_array[0],
-                    'frame_id': frame_count,
-                }));
-                */
-                /*
-                const recordingBuffer = context.createBuffer(
-                    recording_properties.numberOfChannels,
-                    recording_properties.bufferLength,
-                    recording_properties.sampleRate,
-                );
-                for (let i = 0; i < recording_properties.numberOfChannels; i++) {
-                    recordingBuffer.copyToChannel(event.data.buffer_array[i], i, 0);
-                }
-                */
-                //socket.send(event.data.buffer_array[0].buffer)
-                //socket.send(recordingBuffer)
-                /*
-                socket.onopen = function open(){
-                    socket.send(event.data.buffer_array[0])
-                }
-                */
-                //console.log(event.data.buffer_array[0].buffer);
-                //socket.onopen = function(){console.log(recordingBuffer);socket.send(recordingBuffer);}
-                //socket.send(event.data.buffer_array[0].buffer)
-                /*
-                console.log(event.data.buffer_array[0].buffer,//recordingBuffer.getChannelData(0),
-                JSON.parse(JSON.stringify({
-                    'array': recordingBuffer,
-                    'frame_id': frame_count,
 
-                })));
-                */
-                /*
-                let new_array_1 = event.data.buffer_array[0];
-                let new_array_2 = event.data.buffer_array[1];
-                for (let i = 0; i < new_array_1.length; i++){
-                    if (new_array_1[i] === new_array_2[i]){
-                        console.log('hey');
-                    }
-                }
-                */
-               //console.log(Math.max(...event.data.buffer_array[0]));
-                
-
-                //const wavUrl = createLinkFromAudioBuffer(recordingBuffer, false);
-                //console.log(wavUrl);
-                //let wave_array  = _createWaveFileBlobFromAudioBuffer(recordingBuffer, false);
-                //let wave_array = audioBufferToWav(recordingBuffer,false);
-                //console.log(event.data);
-                //console.log(recordingBuffer);
-                //console.log(wave_array);
+            if (event.data.message === "CONTINUE_CREATE_BUFFER"){
+                //console.log(Meyda.extract("mfcc",event.data.sample));
+                mfcc_array[event.data.mfcc_count] = Meyda.extract("mfcc", event.data.sample);
             }
+            if(event.data.message === "MAX_BUFFER_LENGTH" ){
+                mfcc_array[event.data.mfcc_count] = Meyda.extract("mfcc", event.data.sample);
+                //console.log(mfcc_array);
+                tensor_arr = tf.tensor(transpose(mfcc_array)).print();
+                console.log(tensor_arr);
+
+            }
+            
+            
             
         };
         return recordingEventCallback;

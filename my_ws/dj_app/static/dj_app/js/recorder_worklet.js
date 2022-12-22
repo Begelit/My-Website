@@ -40,9 +40,9 @@ class RecorderProcessor extends AudioWorkletProcessor{
                     if(this.mfcc_bool === false){
                         if(Math.abs(current_sample) >= 0.3){
                             this.mfcc_bool = true;
-                            this.port.postMessage({
-                                message: 'START_CREATE_BUFFER',
-                            });
+                            //this.port.postMessage({
+                            //    message: 'START_CREATE_BUFFER',
+                            //});
                         }
                     }
                     //if(this.mfcc_bool === true){
