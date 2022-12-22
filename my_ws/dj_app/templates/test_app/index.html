@@ -22,7 +22,12 @@
 
     'use strict';
 
-
+    ///home/koza/zummit_project/django_app/dj_app/static/third_model.onnx
+    async function test(){
+        const sess = new onnx.InferenceSession();
+        await sess.loadModel("/static/third_model.onnx");
+    }
+    test();
     //print(a.print());
     Meyda.bufferSize = 128;
     const heading = document.querySelector("h3");
@@ -187,7 +192,7 @@
                     canvasCtx.lineTo(i*64, height/2-freq_height);
                     canvasCtx.closePath();
                     canvasCtx.stroke();
-                    if(i === 15){
+                    if(i === 19){
                         //console.log('trash');
                         gain = null;
                         freq_val=null;
