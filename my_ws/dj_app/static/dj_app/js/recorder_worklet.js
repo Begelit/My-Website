@@ -42,7 +42,7 @@ class RecorderProcessor extends AudioWorkletProcessor{
                     const current_sample = inputs[input][channel][sample];
                     if(this.mfcc_bool === false){
                         this._recording_buffer[channel][sample] = current_sample;
-                        if(Math.abs(current_sample) >= 0.1){
+                        if(Math.abs(current_sample) >= 0.15){
                             this.mfcc_bool = true;
                             //for(let i = 0; i < this.border_recording_buffer.length; i++){
                             //    this._recording_buffer[channel][i] = this.border_recording_buffer[i];
