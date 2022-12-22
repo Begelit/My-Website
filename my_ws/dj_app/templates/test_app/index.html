@@ -35,7 +35,7 @@
     //document.body.addEventListener("click", main);
     document.body.addEventListener("click", init);
 
-    //const socket = new WebSocket('ws://localhost:8000/ws/some_url/');
+    const socket = new WebSocket('ws://localhost:8000/ws/some_url/');
     //socket.binaryType = "arraybuffer"
     //socket.onopen = onopen;
     //socket.onmessage = onmessage;
@@ -118,7 +118,11 @@
             */
             if(event.data.message === "MAX_BUFFER_LENGTH" ){
                 //mfcc_array[event.data.mfcc_count] = Meyda.extract("mfcc", event.data.sample);
-                console.log(event.data);
+                //console.log(event.data);
+                socket.send(JSON.stringify({
+                    message: event.data.message,
+                    array: event.data.buffer_array[0],
+                }));
                 //tensor_arr = tf.tensor(transpose(mfcc_array)).print();
                 //console.log(tensor_arr);
 

@@ -18,9 +18,9 @@ class WSConsumer(WebsocketConsumer):
         #    sleep(1)
     def receive(self, text_data=None, bytes_data=None):
         #print("EVENT TRIGERED")
-        #data = json.loads(text_data)
-        
-        print(bytes_data.decode("utf-8","ignore"))
+        data = json.loads(text_data)
+        print(list(data['array'].values()))
+        #print(bytes_data.decode("utf-8","ignore"))
         #self.frame_id.append(data['frame_id'])
         #print(data['array'])
         #arr_data_sample = np.array(list(data['array'].values()))
