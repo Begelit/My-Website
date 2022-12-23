@@ -11,24 +11,28 @@
 
         {% load static %}
         <script type="text/javascript" src="{% static '/dj_app/js/recorder_worklet.js' %}"></script>
-        <script type="text/javascript" src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
-        <!--/dj_app/js/node_modules/meyda/dist/web/meyda.min.js-->
+        <!--<script type="text/javascript" src="https://unpkg.com/meyda/dist/web/meyda.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
-        <script src="https://cdn.jsdelivr.net/npm/onnxjs@0.1.8/dist/onnx.min.js"> </script>
+        <script src="https://cdn.jsdelivr.net/npm/onnxjs@0.1.8/dist/onnx.min.js"> </script>-->
         
     </head>
     <body>
-        <div class="navbar bg-dark shadow-lg p-3"><!--navbar-dark-->
-            <div class="container">
-                <a class="navbar-brand d-flex align-items-center" href="/">
-                    <strong>
-                        <h2>Site Without Brand™</h2>
-                        <!--{% block homeContent %}
-                        {% endblock %}-->
-                    </strong>
-                </a>
+        <!--<div class = "container">-->
+            <div class = "row">
+                <div class = "col">
+                    <div class="navbar bg-dark shadow-lg p-3"><!--navbar-dark-->
+                        <div class="container">
+                            <a class="navbar-brand d-flex align-items-center" href="/">
+                                <strong>
+                                    <h2>Site Without Brand™</h2>
+                                    <!--{% block homeContent %}
+                                    {% endblock %}-->
+                                </strong>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
         <div class = "conteiner">
             <div class = "row">
                 <div class = "col"></div>
@@ -50,6 +54,14 @@
                     {% endblock %}
                 </div>
                 <div class = "col"></div>
+            </div>
+            <div class = "row">
+                <div class = "col">
+                    <div class = "command_vis">
+                        {% block commandVisBlock %}
+                        {% endblock %}
+                    </div>
+                </div>
             </div>
         </div>
 
