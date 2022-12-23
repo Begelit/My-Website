@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block commandBlock %}
-<h1 id="command"></h1>
+<font size = "25" color = "purple"><h1 id="command"></h1></font>
 {% endblock %}
 
 {% block canvasBlock %}
@@ -26,39 +26,13 @@
 
     'use strict';
 
-    ///home/koza/zummit_project/django_app/dj_app/static/third_model.onnx
-    // async function test(){
-    //    const sess = new onnx.InferenceSession();
-    //    await sess.loadModel("/static/third_model.onnx");
-    //}
-    //test();
-    //print(a.print());
-    //Meyda.bufferSize = 128;
+
     const heading = document.querySelector("h3");
     heading.textContent = "CLICK HERE TO START";
-    //document.body.addEventListener("click", main);
     document.body.addEventListener("click", init);
 
-    //const socket = new WebSocket('ws://localhost:8000/ws/some_url/');
-    //socket.binaryType = "arraybuffer"
-    //socket.onopen = onopen;
-    //socket.onmessage = onmessage;
-    //socket.onclose = onclose;
-    //socket.onerror = onerror;
-
-    //const intendedWidth = document.querySelector(".wrapper").clientWidth;
-    //canvas.setAttribute("width", intendedWidth);
-    //const visualSelect = document.getElementById("visual");
-    //let drawVisual;
 
     const context = new AudioContext({sampleRate: 16000,});
-
-    /*
-    document.body.addEventListener('click', (element) => {
-        init();
-        //document.querySelector('#click-to-start').remove();
-    }, {once: true});
-    */
 
     async function init () {
         if (context.state === 'suspended') {
@@ -75,8 +49,7 @@
             },
         });
         const micSourceNode = await context.createMediaStreamSource(micStream);
-        //let track =  micStream.getAudioTracks()[0];
-        //await track.applyConstraints({channelCount:1,});
+
         const recordingProperties = {
             numberOfChannels: micSourceNode.channelCount,
             sampleRate: context.sampleRate,
@@ -86,9 +59,7 @@
         console.log(recordingProperties);
         
         const recordingNode = await setupRecordingWorkletNode(recordingProperties);
-        //const monitorNode = context.createGain();
-        //const analyser = context.createAnalyser();
-        //analyser.fftsize = 16384;
+
         console.log(recordingNode);
 
         micSourceNode
@@ -102,7 +73,6 @@
             //console.log(event.data.inpgain);
             recordingCallback(event);
             visualizerCallback(event);
-            //visualize(dataArray,128,analyser);
         };
 
         
@@ -228,7 +198,7 @@
     socket.onmessage = function(event){
         var data = JSON.parse(event.data);
         console.log(data);
-        document.querySelector('#command').innerText = data.command[0];
+        document.querySelector('#command').innerText = data.command;
     }
     
     
