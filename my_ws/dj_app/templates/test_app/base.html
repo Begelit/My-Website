@@ -40,27 +40,32 @@
                 <div class = "col"></div>
             </div>
             <div class = "row">
+                <div class = "col"></div>
                 <div class = "col">
                     <div class="wrapper">
                         {% block canvasBlock %}
                         {% endblock %}
                     </div>
                 </div>
-            </div>
-            <div class = "row p-5">
-                <div class = "col"></div>
-                <div class = "col">
-                    {% block commandBlock %}
-                    {% endblock %}
-                </div>
                 <div class = "col"></div>
             </div>
             <div class = "row">
-                <div class = "col">
+                <div class = "col border"></div>
+                <div class = "col border">
+                    {% block commandBlock %}
+                    {% endblock %}
+                </div>
+                <div class = "col border"></div>
+            </div>
+            <div class = "row border">
+                <div class = "col border"></div>
+                <div class = "col border">
                     <div class = "command_vis">
                         {% block commandVisBlock %}
                         {% endblock %}
                     </div>
+                </div>
+                <div class = "col border">
                 </div>
             </div>
         </div>

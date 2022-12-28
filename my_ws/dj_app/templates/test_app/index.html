@@ -16,6 +16,10 @@
 <canvas class="visualizer" width="1000" height="200"></canvas>
 {% endblock %}
 
+{% block commandVisBlock %}
+<canvas class="command_visualizer" width="500" height="500"></canvas>
+{% endblock %}
+
 {% block wsScript %}
 
 <!-- ----------- --> <!-- ALTERNATIVE --><!-- ------------ -->
@@ -30,6 +34,7 @@
     const heading = document.querySelector("h3");
     heading.textContent = "CLICK HERE TO START";
     document.body.addEventListener("click", init);
+    var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
 
 
     const context = new AudioContext({sampleRate: 16000,});
@@ -74,8 +79,75 @@
             recordingCallback(event);
             visualizerCallback(event);
         };
+
+        visCommandSetup();
+        //var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
+        /*const visCallBack = visCommandSetup()
+        socket.onmessage = function(event){
+            var data = JSON.parse(event.data);
+            console.log(data);
+            document.querySelector('#command').innerText = data.command;
+        }
+        */     
+        
+    }
+
+    function sleep(ms){
+        return new Promise(resolve => setTimeout(resolve,ms));
+    }
+/*
+    connect = () => {
+        return new Promise(
+            function(resolve){
+                var websocket = new WebSocket('ws://localhost:8000/ws/some_url/');
+            }
+        );
+    }
+*/
+
+/*
+    function foo(){
+        return new Promise(
+            function(resolve){
+                var websocket = new WebSocket('ws://localhost:8000/ws/some_url/');
+                websocket.onmessage = function(event){
+                    var data = JSON.parse(event.data);
+                    resolve({
+                        data_: data
+                    });
+                }
+
+            }
+        );
+    }
+*/
+
+
+    async function visCommandSetup(){
+        let warr = [];
+        //this.warr = [];
+        //await foo().then((res_data) =>{
+        //            console.log(res_data);
+        //        }
+        for (let i = 1; i<=10000;i++){
+            await sleep(1000);
+        //    );
+            //let command = 'none';
+            //let com;
+            socket.onmessage = function(event){
+                var data = JSON.parse(event.data);
+                document.querySelector('#command').innerText = data.command;
+                warr.push(data); 
+                console.log(warr);
+            }
+                //com = data.command;
+                //console.log(command);
+                console.log(warr);
+            }
         
         
+        
+
     }
 
     function handleRecording(recording_port, recording_properties){
@@ -191,15 +263,11 @@
         return visualizerEventCallback;
     }
 
+
     
 
     
-    var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
-    socket.onmessage = function(event){
-        var data = JSON.parse(event.data);
-        console.log(data);
-        document.querySelector('#command').innerText = data.command;
-    }
+
     
     
 </script>
