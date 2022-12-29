@@ -75,52 +75,18 @@
         const recordingCallback = handleRecording(recordingNode.port, recordingProperties);
         const visualizerCallback = visualizer(recordingNode.port);
         recordingNode.port.onmessage = (event) => {
-            //console.log(event.data.inpgain);
             recordingCallback(event);
             visualizerCallback(event);
         };
 
-        visCommandSetup();
-        //var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
-        /*const visCallBack = visCommandSetup()
-        socket.onmessage = function(event){
-            var data = JSON.parse(event.data);
-            console.log(data);
-            document.querySelector('#command').innerText = data.command;
-        }
-        */     
+        visCommandSetup();  
         
     }
 
     function sleep(ms){
         return new Promise(resolve => setTimeout(resolve,ms));
     }
-/*
-    connect = () => {
-        return new Promise(
-            function(resolve){
-                var websocket = new WebSocket('ws://localhost:8000/ws/some_url/');
-            }
-        );
-    }
-*/
 
-/*
-    function foo(){
-        return new Promise(
-            function(resolve){
-                var websocket = new WebSocket('ws://localhost:8000/ws/some_url/');
-                websocket.onmessage = function(event){
-                    var data = JSON.parse(event.data);
-                    resolve({
-                        data_: data
-                    });
-                }
-
-            }
-        );
-    }
-*/
 
 
     function handleRecording(recording_port, recording_properties){
@@ -182,7 +148,6 @@
         //canvas.setAttribute("width", intendedWidth);
         const width = canvas.width;
         const height = canvas.height;
-        //let gain = 0;
         const visualizerEventCallback = async (event) => {
             //MAX_BUFFER_LENGTH MAX_VISUALIZER_BUFFER_LENGTH
             if(event.data.message === "MAX_VISUALIZER_BUFFER_LENGTH"){
