@@ -30,6 +30,7 @@ class RecorderProcessor extends AudioWorkletProcessor{
         this.current_bufferLength = 0;
         this.current_visualizer_bufferLength = 0;
         this.mfcc_bool = false;
+        //this.type_inp = null;
         //this.border_bool = false;
         //this.mfcc_count = 0;
         
@@ -43,6 +44,7 @@ class RecorderProcessor extends AudioWorkletProcessor{
                     if(this.mfcc_bool === false){
                         this._recording_buffer[channel][sample] = current_sample;
                         if(Math.abs(current_sample) >= 0.15){
+                            //this.type_inp = inputs[input][channel][sample]
                             this.mfcc_bool = true;
                             //for(let i = 0; i < this.border_recording_buffer.length; i++){
                             //    this._recording_buffer[channel][i] = this.border_recording_buffer[i];

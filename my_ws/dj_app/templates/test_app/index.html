@@ -35,7 +35,7 @@
     heading.textContent = "CLICK HERE TO START";
     document.body.addEventListener("click", init);
     var socket = new WebSocket('ws://localhost:8000/ws/some_url/');
-
+    socket.binaryType = "arraybuffer";
 
     const context = new AudioContext({sampleRate: 16000,});
 
@@ -104,14 +104,21 @@
             if(event.data.message === "MAX_BUFFER_LENGTH" ){
                 //mfcc_array[event.data.mfcc_count] = Meyda.extract("mfcc", event.data.sample);
                 //console.log(event.data);
+                //var arr = new Uint8Array([-1, -0.5, 0.7, 1]).buffer;
+                console.log(event.data.buffer_array[0])
+                socket.send(event.data.buffer_array[0].buffer);
+                //socket.send(arr);
+                /*
                 socket.send(JSON.stringify({
                     message: event.data.message,
                     array: event.data.buffer_array[0],
                 }));
+                */
                 //tensor_arr = tf.tensor(transpose(mfcc_array)).print();
                 //console.log(tensor_arr);
 
             }
+            //arr = undefined;
             
             
             

@@ -7,6 +7,7 @@ import torchaudio
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import struct
 
 from channels.generic.websocket import WebsocketConsumer
 
@@ -94,6 +95,7 @@ class WSConsumer(WebsocketConsumer):
         self.net.load_state_dict(torch.load(
                 'epoch_194.pth',
                 map_location=torch.device('cpu')
+
             )
         )
         self.net.eval()
@@ -104,9 +106,11 @@ class WSConsumer(WebsocketConsumer):
     def receive(self, text_data=None, bytes_data=None):
 
         #print("EVENT TRIGERED")
-        data = json.loads(text_data)
-
-        waveform = torch.tensor(list(data['array'].values()))
+        #data = json.loads(text_data)
+        signal_list = [struct.unpack("f",bytes_data[index*4:index*4+4])[0] for index in range(16000)]
+        #print(text_data)
+        
+        waveform = torch.tensor(signal_list)
         print('WAVEFORM SHAPE: ', waveform.shape)
 
         #mfcc = self.mfcc_transform(waveform)
@@ -126,6 +130,7 @@ class WSConsumer(WebsocketConsumer):
             'command': decode,
             }
         ))
+        
         '''
         out = F.log_softmax(out, dim=2)
         out = out.transpose(0, 1)
