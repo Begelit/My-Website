@@ -134,7 +134,7 @@
      * @return {AudioWorkletNode} Recording node related components for the app.
      */
     async function setupRecordingWorkletNode(recordingProperties) {
-        await context.audioWorklet.addModule('static/dj_app/js/recorder_worklet.js');
+        await context.audioWorklet.addModule('/static/dj_app/js/recorder_worklet.js');
 
         const WorkletRecordingNode = new AudioWorkletNode(
             context,
