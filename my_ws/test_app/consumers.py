@@ -81,7 +81,7 @@ class NN2DMEL(nn.Module):
 
 
 
-class WSConsumer(WebsocketConsumer):
+class WSConsumer1(WebsocketConsumer):
     #def __init__(self):
     #    self.frame_id = list()
     def connect(self):
@@ -140,4 +140,14 @@ class WSConsumer(WebsocketConsumer):
 
         print(decode)
         '''
+    
+class WSConsumerTransformer(WebsocketConsumer):
+    def connect(self):
+        self.accept()
+        self.signal_full_list = list()
+    def receive(self, text_data=None, bytes_data=None):
+        signal_chunk_list = [struct.unpack("f",bytes_data[index*4:index*4+4])[0] for index in range(1536)]
+        self.signal_full_list += signal_chunk_list
+        print(len(self.signal_full_list))
+    
 

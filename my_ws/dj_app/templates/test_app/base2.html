@@ -39,42 +39,43 @@
 
             <div class="row border p-5" style="background-color:gainsboro;">
                 
-                    <div class="col border p-4" style="background-color: white;" id="div-select">
-                        <a href="/index">
-                            <div class="container">
-                                <div class="row border" style="background-color: white;">
-                                    <div class="col-4 p-4">
-                                        {% load static %}
-                                        <img src="{% static '/dj_app/img/speech_command_img.jpeg' %}" />
-                                    </div>
-                                    <div class="col-8 p-5">
-                                        <h2>Commands Recognition</h2>
-                                    </div>
+                <div class="col border p-4" style="background-color: white;" id="div-select">
+                    <a href="/index">
+                        <div class="container">
+                            <div class="row border" style="background-color: white;">
+                                <div class="col-4 p-4">
+                                    {% load static %}
+                                    <img src="{% static '/dj_app/img/speech_command_img.jpeg' %}" />
+                                </div>
+                                <div class="col-8 p-5">
+                                    <h2>Commands Recognition</h2>
                                 </div>
                             </div>
-                        </a>
-    
-                    </div>
+                        </div>
+                    </a>
+
+                </div>
                 
 
                 <div class="col-1 " style="background-color: gainsboro;"></div>
 
                 <div class="col border p-4" style="background-color: white;" id="div-select2">
-
-                    <div class="container">
-                        <div class="row border" style="background-color: white;">
-                            <div class="col-4 p-4">
-                                {% load static %}
-                                <img src="{% static '/dj_app/img/transformer_img.jpeg' %}" />
-                            </div>
-                            <div class="col-8 p-5">
-                                <h2>Transformer Speech-2-Text</h2>
+                
+                    <a href="/transformer">
+                        <div class="container">
+                            <div class="row border" style="background-color: white;">
+                                <div class="col-4 p-4">
+                                    {% load static %}
+                                    <img src="{% static '/dj_app/img/transformer_img.jpeg' %}" />
+                                </div>
+                                <div class="col-8 p-5">
+                                    <h2>Transformer Speech-2-Text</h2>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
+                    </a>
+                </div>
             </div>
-
         </div>
 
         <script>
