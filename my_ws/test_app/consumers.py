@@ -7,10 +7,10 @@ import torchaudio
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import torchaudio.transforms as T
 import struct
 
 from channels.generic.websocket import WebsocketConsumer
-
 
 
 
@@ -81,7 +81,7 @@ class NN2DMEL(nn.Module):
 
 
 
-class WSConsumer1(WebsocketConsumer):
+class WSConsumerCommands(WebsocketConsumer):
     #def __init__(self):
     #    self.frame_id = list()
     def connect(self):
@@ -93,7 +93,7 @@ class WSConsumer1(WebsocketConsumer):
 
         self.net = NN2DMEL(num_class=6)
         self.net.load_state_dict(torch.load(
-                'epoch_194.pth',
+                'commands_model_epoch_194.pth',
                 map_location=torch.device('cpu')
 
             )
@@ -107,10 +107,14 @@ class WSConsumer1(WebsocketConsumer):
 
         #print("EVENT TRIGERED")
         #data = json.loads(text_data)
-        signal_list = [struct.unpack("f",bytes_data[index*4:index*4+4])[0] for index in range(16000)]
+        signal_list = [struct.unpack("f",bytes_data[index*4:index*4+4])[0] for index in range(48000)]
         #print(text_data)
         
         waveform = torch.tensor(signal_list)
+
+        resampler = T.Resample(48000, 16000, dtype=waveform.dtype)
+        waveform = resampler(waveform)
+        #print('WAVEFORM SHAPE: ', waveform.shape)
         print('WAVEFORM SHAPE: ', waveform.shape)
 
         #mfcc = self.mfcc_transform(waveform)
@@ -130,24 +134,12 @@ class WSConsumer1(WebsocketConsumer):
             'command': decode,
             }
         ))
-        
-        '''
-        out = F.log_softmax(out, dim=2)
-        out = out.transpose(0, 1)
-        print(out)
 
-        decode = GreedyDecoder(out.transpose(0, 1))
-
-        print(decode)
-        '''
-    
-class WSConsumerTransformer(WebsocketConsumer):
+class ConsumerClass(WebsocketConsumer):
     def connect(self):
         self.accept()
-        self.signal_full_list = list()
-    def receive(self, text_data=None, bytes_data=None):
-        signal_chunk_list = [struct.unpack("f",bytes_data[index*4:index*4+4])[0] for index in range(1536)]
-        self.signal_full_list += signal_chunk_list
-        print(len(self.signal_full_list))
-    
-
+        self.send(text_data = json.dumps({
+            'message': 'hi'
+        }))
+    #def receive(self, text_data = None, byte_data = None):
+    #    pass
