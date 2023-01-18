@@ -9,6 +9,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torchaudio.transforms as T
 import struct
+from transformers import AutoModelForCTC, Wav2Vec2Processor
 
 from channels.generic.websocket import WebsocketConsumer
 
@@ -148,6 +149,8 @@ class WSConsumerTransformer(WebsocketConsumer):
 
         SAMPLING_RATE = 16000
 
+        self.start_val = 0
+
         torch.set_num_threads(1)
 
         model, utils = torch.hub.load(
@@ -165,21 +168,47 @@ class WSConsumerTransformer(WebsocketConsumer):
 
         self.vad_iterator = VADIterator(model)
 
+        self.model = AutoModelForCTC.from_pretrained("transformer/")
+        self.processor = Wav2Vec2Processor.from_pretrained("transformer/")
+
         self.send(json.dumps({
             'message': 'model_is_ready',
         }))
 
+
     def receive(self, text_data=None, bytes_data=None):
+
         signal_chunk_list = [struct.unpack("f",bytes_data[index*4:index*4+4])[0] for index in range(4608)]
+        #self.signal_full_list += signal_chunk_list
+
         waveform = torch.tensor(signal_chunk_list)
         resampler = T.Resample(48000, 16000, dtype=waveform.dtype)
         waveform = resampler(waveform)
+        self.signal_full_list += waveform.tolist()
+
         speech_dict = self.vad_iterator(waveform) #, return_seconds=True)
+
         #print(waveform)
-        print(speech_dict)
-        #print(len(waveform))
-        #self.signal_full_list += waveform
-        #print(len(self.signal_full_list))
+        #print(speech_dict)
+
+        if speech_dict != None:
+            #print(list(speech_dict.keys()))
+            if list(speech_dict.keys())[0] == 'start':
+                #print(speech_dict['start'])
+                self.start_val = speech_dict['start']
+            elif list(speech_dict.keys())[0] == 'end':
+                #print(speech_dict['end'])
+                end_val = speech_dict['end']
+                sequence_waveform_list = self.signal_full_list[self.start_val:end_val]
+                sequence_waveform_tensor = torch.tensor(sequence_waveform_list).unsqueeze(0)
+                #print(sequence_waveform_tensor)
+                #print(sequence_waveform_tensor.shape)
+                with torch.no_grad():
+                    logits = self.model(sequence_waveform_tensor).logits
+                    pred_ids = torch.argmax(logits, dim=-1)
+                    decode_result = self.processor.batch_decode(pred_ids)[0].replace("[PAD]",'')
+                    print(decode_result)
+
 
 class ConsumerClass(WebsocketConsumer):
     def connect(self):
