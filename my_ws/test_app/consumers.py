@@ -135,6 +135,52 @@ class WSConsumerCommands(WebsocketConsumer):
             }
         ))
 
+class WSConsumerTransformer(WebsocketConsumer):
+    def connect(self):
+
+        self.accept()
+
+        self.send(json.dumps({
+            'message': 'loading_model',
+        }))
+
+        self.signal_full_list = list()
+
+        SAMPLING_RATE = 16000
+
+        torch.set_num_threads(1)
+
+        model, utils = torch.hub.load(
+            repo_or_dir='snakers4/silero-vad',
+            model='silero_vad',
+            force_reload=True,
+            onnx=False
+        )
+
+        (get_speech_timestamps,
+        save_audio,
+        read_audio,
+        VADIterator,
+        collect_chunks) = utils
+
+        self.vad_iterator = VADIterator(model)
+
+        self.send(json.dumps({
+            'message': 'model_is_ready',
+        }))
+
+    def receive(self, text_data=None, bytes_data=None):
+        signal_chunk_list = [struct.unpack("f",bytes_data[index*4:index*4+4])[0] for index in range(4608)]
+        waveform = torch.tensor(signal_chunk_list)
+        resampler = T.Resample(48000, 16000, dtype=waveform.dtype)
+        waveform = resampler(waveform)
+        speech_dict = self.vad_iterator(waveform) #, return_seconds=True)
+        #print(waveform)
+        print(speech_dict)
+        #print(len(waveform))
+        #self.signal_full_list += waveform
+        #print(len(self.signal_full_list))
+
 class ConsumerClass(WebsocketConsumer):
     def connect(self):
         self.accept()

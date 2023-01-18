@@ -5,4 +5,5 @@ from . import consumers
 websocket_urlpatterns = [
     re_path(r'ws/socket-server/', consumers.ConsumerClass.as_asgi()),
     re_path(r'ws/socket-server-commands/', consumers.WSConsumerCommands.as_asgi()),
+    re_path(r'ws/socket-server-transformer/', consumers.WSConsumerTransformer.as_asgi()),
 ]

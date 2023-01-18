@@ -1,0 +1,142 @@
+<html>
+    <head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>SWB - Transformer</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">        
+        <style>
+            img{
+                width: 150px;
+                height: 150px;
+            }
+            a{
+                text-decoration: none;
+                color: black;
+            }
+        </style><!-- height: 200px; -->
+    </head>
+    <body>
+        <div class="navbar bg-dark shadow-lg p-3"><!--navbar-dark-->
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <strong>
+                        <h2>Site Without Brand™</h2>
+                        <!--{% block homeContent %}
+                        {% endblock %}-->
+                    </strong>
+                </a>
+            </div>
+        </div>
+
+        <div class = "container">
+
+            <div class="row p-3">
+                <div class="col">
+                    <div class = "p-3"></div>
+                </div>
+            </div>
+
+            <div class="row border p-5" style="background-color:gainsboro;">
+                
+                <div class="col border p-4" style="background-color: white;" id="div-select">
+
+
+                </div>
+                
+
+                <div class="col-1 " style="background-color: gainsboro;"></div>
+
+                <div class="col border p-4" style="background-color: white;" id="div-select2">
+                
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.body.addEventListener("click", init);
+
+            const context = new AudioContext();
+
+            var socket = new WebSocket('ws://localhost:8000/ws/socket-server-transformer/');
+            socket.binaryType = "arraybuffer";
+
+            async function init () {
+
+                if (context.state === 'suspended') {
+                    await context.resume();
+                }
+
+                const micStream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                    video: false,
+                });
+
+                const micSourceNode = await context.createMediaStreamSource(micStream);
+
+                const recordingProperties = {
+                    numberOfChannels: micSourceNode.channelCount,
+                    sampleRate: context.sampleRate,
+                    bufferLength: 4608,
+                    visualizeBufferLength: Math.round((context.sampleRate/8)/128)*128,
+                };
+                console.log(recordingProperties);
+        
+                const recordingNode = await setupRecordingWorkletNode(recordingProperties);
+
+                console.log(recordingNode);
+
+                micSourceNode
+                .connect(recordingNode)
+                //.connect(monitorNode)
+                .connect(context.destination);
+
+                const recordingCallback = handleRecording(recordingNode.port);
+
+                recordingNode.port.onmessage = (event) => {
+                    //console.log(event.data);
+                    recordingCallback(event);
+                }
+
+            }
+
+            async function setupRecordingWorkletNode(recordingProperties) {
+                
+                await context.audioWorklet.addModule('/static/test_app/js/recorder_worklet_transformer.js');
+
+                const WorkletRecordingNode = new AudioWorkletNode(
+                    context,
+                    'recorder_worklet',
+                    {
+                        processorOptions: recordingProperties,
+                    },
+                );
+
+                return WorkletRecordingNode;
+            }
+
+            function handleRecording(recording_port, recording_properties){
+
+
+                const recordingEventCallback = async (event) => {
+
+                    if(event.data.message === "MAX_BUFFER_LENGTH" ){
+                        socket.send(event.data.buffer_array[0].buffer);
+                    }            
+                    
+                };
+                return recordingEventCallback;
+
+            }
+
+            socket.onmessage = function(event){
+                var data = JSON.parse(event.data);
+                //document.querySelector('#command').innerText = data.command;
+                //warr.push(data.command); 
+                console.log(data);
+            }
+
+        </script>
+
+    </body>
+
+</html>
