@@ -208,6 +208,11 @@ class WSConsumerTransformer(WebsocketConsumer):
                     pred_ids = torch.argmax(logits, dim=-1)
                     decode_result = self.processor.batch_decode(pred_ids)[0].replace("[PAD]",'')
                     print(decode_result)
+                    self.send(json.dumps({
+                    'message': 'decoded_result',
+                    'decoded_result': decode_result,
+                    }))
+                    
 
 
 class ConsumerClass(WebsocketConsumer):
