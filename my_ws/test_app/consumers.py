@@ -10,6 +10,12 @@ import torch.optim as optim
 import torchaudio.transforms as T
 import struct
 from transformers import AutoModelForCTC, Wav2Vec2Processor
+from omegaconf import OmegaConf
+from lib_stt.src.silero.utils import (init_jit_model, 
+                       split_into_batches,
+                       read_audio,
+                       read_batch,
+                       prepare_model_input)
 
 from channels.generic.websocket import WebsocketConsumer
 
@@ -153,7 +159,7 @@ class WSConsumerTransformer(WebsocketConsumer):
 
         torch.set_num_threads(1)
 
-        model, utils = torch.hub.load(
+        vad_model, vad_utils = torch.hub.load(
             repo_or_dir='snakers4/silero-vad',
             model='silero_vad',
             force_reload=True,
@@ -164,16 +170,22 @@ class WSConsumerTransformer(WebsocketConsumer):
         save_audio,
         read_audio,
         VADIterator,
-        collect_chunks) = utils
+        collect_chunks) = vad_utils
 
-        self.vad_iterator = VADIterator(model)
+        self.vad_iterator = VADIterator(vad_model)
 
-        self.model = AutoModelForCTC.from_pretrained("transformer/")
-        self.processor = Wav2Vec2Processor.from_pretrained("transformer/")
+        self.device = torch.device('cpu')  # gpu also works, but our models are fast enough for CPU
+        models = OmegaConf.load('lib_stt/models.yml')
+        self.lib_model, self.lib_decoder = init_jit_model(models.stt_models.en.latest.jit, device=self.device)
+
+        self.transformer_model = AutoModelForCTC.from_pretrained("transformer/")
+        self.transformer_processor = Wav2Vec2Processor.from_pretrained("transformer/")
 
         self.send(json.dumps({
             'message': 'model_is_ready',
         }))
+
+        self.lib = True
 
 
     def receive(self, text_data=None, bytes_data=None):
@@ -203,15 +215,26 @@ class WSConsumerTransformer(WebsocketConsumer):
                 sequence_waveform_tensor = torch.tensor(sequence_waveform_list).unsqueeze(0)
                 #print(sequence_waveform_tensor)
                 #print(sequence_waveform_tensor.shape)
-                with torch.no_grad():
-                    logits = self.model(sequence_waveform_tensor).logits
-                    pred_ids = torch.argmax(logits, dim=-1)
-                    decode_result = self.processor.batch_decode(pred_ids)[0].replace("[PAD]",'')
-                    print(decode_result)
-                    self.send(json.dumps({
-                    'message': 'decoded_result',
-                    'decoded_result': decode_result,
-                    }))
+                if self.lib == False:
+                    with torch.no_grad():
+                        logits = self.transformer_model(sequence_waveform_tensor).logits
+                        pred_ids = torch.argmax(logits, dim=-1)
+                        decode_result = self.transformer_processor.batch_decode(pred_ids)[0].replace("[PAD]",'')
+                        print(decode_result)
+                        self.send(json.dumps({
+                        'message': 'decoded_result',
+                        'decoded_result': decode_result,
+                        }))
+                else:
+                    output = self.lib_model(sequence_waveform_tensor)
+                    for example in output:
+                        decode_result = self.lib_decoder(example.cpu())
+                        print(decode_result)
+                        self.send(json.dumps({
+                        'message': 'decoded_result',
+                        'decoded_result': decode_result,
+                        }))
+
                     
 
 
