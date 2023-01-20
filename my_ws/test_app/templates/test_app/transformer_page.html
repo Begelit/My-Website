@@ -189,7 +189,12 @@
                 //document.querySelector('#command').innerText = data.command;
                 //warr.push(data.command); 
                 console.log(data);
-
+                if (data.message === 'loading_model') {
+                    document.querySelector('#output').innerText = "Please, wait, model is loading";
+                }
+                if (data.message === 'model_is_ready') {
+                    document.querySelector('#output').innerText = "Model is ready, please, click to start.";
+                }
                 if (data.message === 'decoded_result') {
                     document.querySelector('#output').innerText = data.decoded_result;
                 }
