@@ -286,9 +286,15 @@
                             xCord -= step;
                         }
                     }
-                    if (direction === 'forward'){
+                    if (direction === 'up'){
                         if(yCord-step>=0){
                             yCord -= step;
+                        }
+                    }
+                    if (direction === 'backward'){
+                        if(yCord-step>=0){
+                            //window.location.href = '#';
+                            document.location.href="/";
                         }
                     }
                     if (color_count >= 5){

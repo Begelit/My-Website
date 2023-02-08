@@ -84,6 +84,7 @@
     <script type='text/javascript'>
 
         document.body.addEventListener("click", init);
+        //window.onload = init;
 
         var div_select = document.getElementById("div-select");
         div_select.onmouseover = function(){
@@ -115,6 +116,8 @@
         socket.binaryType = "arraybuffer";
 
         const context = new AudioContext();
+
+        //getAudioContext().resume();
 
         async function init () {
 
