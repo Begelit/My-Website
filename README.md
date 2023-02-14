@@ -1,4 +1,4 @@
-# Speech-To-Text Web Application
+# Speech-To-Text Django Web Application
 ## Demonstration
 ### Home Page
 #### The html document of this page also includes a script that establishes a socket connection to the backend and processes input commands. The response of the page html is the change in the states of the button containers.
