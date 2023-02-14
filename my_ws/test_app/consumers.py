@@ -51,97 +51,7 @@ class TextProcessed:
         for int_ch in int_list:
             ch_list.append(self.index_characters_map[int_ch])
         return ''.join(ch_list)
-'''
-class NN2DMEL(nn.Module):
-    def __init__(self, num_class):
-        super(NN2DMEL,self).__init__()
-        
-        self.conv1 = nn.Conv2d(in_channels=1,out_channels=8,kernel_size=3,stride=1)
-        self.dropout1 = nn.Dropout(0.3) 
-    
-        self.conv2 = nn.Conv2d(in_channels=8,out_channels=16,kernel_size=3,stride=1)
-        self.dropout2 = nn.Dropout(0.3)
-        
-        self.fc1 = nn.Linear(768, 256)
-        self.dropout5 = nn.Dropout(0.3)
-        
-        self.fc2 = nn.Linear(256,128)
-        self.dropout6 = nn.Dropout(0.3)
-        
-        self.fc3 = nn.Linear(128, num_class)
 
-    def forward(self, x):
-        x = F.max_pool2d(F.relu(self.conv1(x)),kernel_size=3)
-        x = self.dropout1(x)
-        x = F.max_pool2d(F.relu(self.conv2(x)),kernel_size=3)
-        x = self.dropout2(x)
-        x = F.relu(self.fc1(x.reshape(-1,x.shape[1] * x.shape[2]*x.shape[3])))
-        x = self.dropout5(x)
-        
-        x = F.relu(self.fc2(x))
-        x = self.dropout6(x)
-        
-        x = self.fc3(x)
-        
-        #print(x.shape)
-        return x 
-'''
-###epoch62
-'''
-class NN2DMEL(nn.Module):
-    def __init__(self, num_class):
-        super(NN2DMEL,self).__init__()
-        
-        self.conv1 = nn.Conv2d(in_channels=1,out_channels=8,kernel_size=3,stride=1)
-        self.dropout1 = nn.Dropout(0.3) 
-    
-        self.conv2 = nn.Conv2d(in_channels=8,out_channels=16,kernel_size=3,stride=1)
-        self.dropout2 = nn.Dropout(0.3)
-        
-        #self.conv3 = nn.Conv2d(in_channels=16,out_channels=32,kernel_size=3,stride=1)
-        #self.dropout3 = nn.Dropout(0.3)
-        
-        #self.conv4 = nn.Conv2d(in_channels=32,out_channels=64,kernel_size=3,stride=1)
-        #self.dropout4 = nn.Dropout(0.3)
-        
-        #self.fc0 = nn.Linear(1664, 256)
-        
-        self.fc1 = nn.Linear(768, 4096)
-        self.dropout5 = nn.Dropout(0.3)
-        self.fc2 = nn.Linear(4096,1024)
-        self.dropout6 = nn.Dropout(0.3)
-        self.fc3 = nn.Linear(1024,128)
-        self.dropout7 = nn.Dropout(0.3)
-        self.fc4 = nn.Linear(128, num_class)
-
-    def forward(self, x):
-        x = F.max_pool2d(F.relu(self.conv1(x)),kernel_size=3)
-        x = self.dropout1(x)
-        x = F.max_pool2d(F.relu(self.conv2(x)),kernel_size=3)
-        x = self.dropout2(x)
-        
-        #x = F.max_pool2d(F.relu(self.conv3(x)),kernel_size=3)
-        #x = self.dropout3(x)
-        #print(x.shape)
-        #x = F.max_pool2d(F.relu(self.conv4(x)),kernel_size=3)
-        #x = self.dropout4(x)
-        #print(x.shape)
-        #print(x.shape)
-        #print(x.shape)
-        x = F.relu(self.fc1(x.reshape(-1,x.shape[1] * x.shape[2]*x.shape[3])))
-        x = self.dropout5(x)
-        
-        x = F.relu(self.fc2(x))
-        x = self.dropout6(x)
-        
-        x = F.relu(self.fc3(x))
-        x = self.dropout7(x)
-        
-        x = self.fc4(x)
-        
-        #print(x.shape)
-        return x 
-'''
 class NN2DMEL(nn.Module):
     def __init__(self, num_class):
         super(NN2DMEL,self).__init__()
@@ -165,21 +75,7 @@ class NN2DMEL(nn.Module):
         self.fc2 = nn.Linear(2048,128)
         self.dropout6 = nn.Dropout(0.3)
         self.fc3 = nn.Linear(128, num_class)
-        '''
-        
-        self.fc1 = nn.Linear(64, 1024)
-        self.dropout5 = nn.Dropout(0.3)
-        self.fc2 = nn.Linear(1024,128)
-        self.dropout6 = nn.Dropout(0.3)
-        self.fc3 = nn.Linear(128, num_class)
-        '''
-        '''
-        self.fc1 = nn.Linear(64, 64)
-        self.dropout5 = nn.Dropout(0.3)
-        self.fc2 = nn.Linear(64,32)
-        self.dropout6 = nn.Dropout(0.3)
-        self.fc3 = nn.Linear(32, num_class)
-        '''
+
     def forward(self, x):
         x = F.max_pool2d(F.relu(self.conv1(x)),kernel_size=3)
         x = self.dropout1(x)
@@ -219,7 +115,7 @@ class WSConsumerCommands(WebsocketConsumer):
         self.net = NN2DMEL(num_class=8)
         self.net.load_state_dict(torch.load(
                 #'commands_model_epoch_194.pth',
-                'epoch_108.pth',
+                'commands_model/epoch_108.pth',
                 map_location=torch.device('cpu')
 
             )
@@ -231,13 +127,6 @@ class WSConsumerCommands(WebsocketConsumer):
 
     def receive(self, text_data=None, bytes_data=None):
 
-        #print("EVENT TRIGERED")
-        #data = json.loads(text_data)
-        #print(bytes_data)
-        #for index in range(44100):
-        #    print("index", index)
-        #    print(bytes_data[index*4:index*4+4][0])
-
         #first_sample_rate = 44100
         first_sample_rate = 48000
 
@@ -248,7 +137,6 @@ class WSConsumerCommands(WebsocketConsumer):
 
         resampler = T.Resample(first_sample_rate, 16000, dtype=waveform.dtype)
         waveform = resampler(waveform)
-        #print('WAVEFORM SHAPE: ', waveform.shape)
         print('WAVEFORM SHAPE: ', waveform.shape)
 
         #mfcc = self.mfcc_transform(waveform)
@@ -314,7 +202,7 @@ class WSConsumerTransformer(WebsocketConsumer):
             'message': 'model_is_ready',
         }))
 
-        self.lib = False
+        self.lib = True
 
 
     def receive(self, text_data=None, bytes_data=None):
