@@ -2,7 +2,7 @@
 ## Demonstration
 ### Home Page
 #### The html document of this page also includes a script that establishes a socket connection to the backend and processes input commands. The response of the page html is the change in the states of the button containers.
-![](https://github.com/Begelit/Speech-To-Text-Proj/blob/main/Django_Web_Application/demo/Commands_Trim.gif)
+![](https://github.com/Begelit/Speech-To-Text-Proj/blob/main/Django_Web_Application/demo/Home_Trim.gif)
 ### Commands Recognition Page
 #### This page exists to demonstrate the ability to control web elements in real time and the ability to visualize the input sound wave.
 ![](https://github.com/Begelit/Speech-To-Text-Proj/blob/main/Django_Web_Application/demo/Commands_Trim.gif)
