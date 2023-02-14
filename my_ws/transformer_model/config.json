@@ -1,5 +1,5 @@
 {
-  "_name_or_path": "facebook/wav2vec2-base",
+  "_name_or_path": "/kaggle/input/stt-full-data-v5/checkpoint-9800",
   "activation_dropout": 0.0,
   "apply_spec_augment": true,
   "architectures": [

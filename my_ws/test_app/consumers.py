@@ -233,12 +233,20 @@ class WSConsumerCommands(WebsocketConsumer):
 
         #print("EVENT TRIGERED")
         #data = json.loads(text_data)
-        signal_list = [struct.unpack("f",bytes_data[index*4:index*4+4])[0] for index in range(48000)]
+        #print(bytes_data)
+        #for index in range(44100):
+        #    print("index", index)
+        #    print(bytes_data[index*4:index*4+4][0])
+
+        #first_sample_rate = 44100
+        first_sample_rate = 48000
+
+        signal_list = [struct.unpack("f",bytes_data[index*4:index*4+4])[0] for index in range(first_sample_rate)]
         #print(text_data)
         
         waveform = torch.tensor(signal_list)
 
-        resampler = T.Resample(48000, 16000, dtype=waveform.dtype)
+        resampler = T.Resample(first_sample_rate, 16000, dtype=waveform.dtype)
         waveform = resampler(waveform)
         #print('WAVEFORM SHAPE: ', waveform.shape)
         print('WAVEFORM SHAPE: ', waveform.shape)
