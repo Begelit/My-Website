@@ -17,6 +17,6 @@
 #### https://github.com/Begelit/Speech-To-Text-Training
 ### Sources
 #### Commands Recognition Model
-##### For successfully use the model that recognizes your commands, you need to download [this](https://drive.google.com/file/d/1ItOShJ5_VcD7Og4WFOYO6x-70wn-zob8/view?usp=sharing) file and copy it to this directory "./Speech-To-Text-Web-App-Django/Django_Web_Application/commands_model/".
+##### For successfully use the model that recognizes your commands, you need to download [this](https://drive.google.com/drive/folders/18H3d_jIhHubffwwYof1yWygiyKPTQkvK?usp=sharing) file and copy it to this directory "./Speech-To-Text-Web-App-Django/Django_Web_Application/commands_model/".
 #### Transformer Model
-##### Fir use transformer model in this web application you need download [this](https://drive.google.com/file/d/1nMj6fzE88VjN_sw5-Af8HNn13HQbM9ug/view?usp=sharing) file to this directory "./Speech-To-Text-Web-App-Django/Django_Web_Application/transformer_model/"
+##### Fir use transformer model in this web application you need download "pytorch_model.bin" file from [this](https://drive.google.com/drive/folders/1uI2faf1LFaHuI2DbuvQj4M7sdiLYktIw?usp=sharing) link and copy it to this directory "./Speech-To-Text-Web-App-Django/Django_Web_Application/transformer_model/"
