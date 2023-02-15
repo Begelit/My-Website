@@ -12,7 +12,7 @@
 ### Ready-made Speech-To-Text model.
 #### We also tried to deploy a library model of speech recognition in our application - Silero-VAD.
 ![](https://github.com/Begelit/Speech-To-Text-Web-App-Django/blob/main/Django_Web_Application/demo/readymade_Trim.gif)
-## Model
+## Models
 ### for a description of the process of training models, you can go to this repository with Jupyter Notebooks.
 #### https://github.com/Begelit/Speech-To-Text-Training
 ### Sources
