@@ -15,7 +15,7 @@
 ## Models
 ### for a description of the process of training models, you can go to this repository with Jupyter Notebooks.
 #### https://github.com/Begelit/Speech-To-Text-Training
-#### P.S. Thanks to Kevin(Kaggle - kevinvaishnav) for participating in the project, teaching this model and providing the necessary resources!
+#### P.S. Thanks to Kevin(Kaggle - kevinvaishnav) for participating in the project, teaching Transformer model and providing the necessary resources!
 #### https://www.kaggle.com/code/kevinvaishnav/stt-readymade/notebook
 ### Sources
 #### Commands Recognition Model
