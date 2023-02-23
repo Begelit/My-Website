@@ -15,6 +15,8 @@
 ## Models
 ### for a description of the process of training models, you can go to this repository with Jupyter Notebooks.
 #### https://github.com/Begelit/Speech-To-Text-Training
+#### P.S. Thanks to Kevin(Kaggle - kevinvaishnav) for participating in the project, teaching this model and providing the necessary resources!
+#### https://www.kaggle.com/code/kevinvaishnav/stt-readymade/notebook
 ### Sources
 #### Commands Recognition Model
 ##### For successfully use the model that recognizes your commands, you need to download [this](https://drive.google.com/drive/folders/18H3d_jIhHubffwwYof1yWygiyKPTQkvK?usp=sharing) file and copy it to this directory "./Speech-To-Text-Web-App-Django/Django_Web_Application/commands_model/".
